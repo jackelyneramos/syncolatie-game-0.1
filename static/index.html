@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -37,29 +37,32 @@
   <main id="palco">
     <section class="tela ativa" id="tela-inicial" aria-label="Tela inicial"></section>
     <section class="tela" id="tela-personalizar" aria-label="Personalizar personagem"></section>
-    <section class="tela" id="tela-ranking" aria-label="Ranking"><div class="ranking-painel"><h1>RANKING</h1><p class="ranking-subtitulo">Melhores pontuaÃ§Ãµes deste navegador</p><ol id="lista-ranking"></ol><button id="voltar-ranking" type="button">VOLTAR</button></div></section>
+    <section class="tela" id="tela-ranking" aria-label="Ranking"><div class="ranking-painel"><h1>RANKING</h1><p class="ranking-subtitulo">Melhores pontuações deste navegador</p><ol id="lista-ranking"></ol><button id="voltar-ranking" type="button">VOLTAR</button></div></section>
     <section class="tela" id="tela-fases" aria-label="Mapa de fases">
-      <button type="button" class="mapa-voltar">← VOLTAR</button>
+      <button type="button" class="mapa-voltar">? VOLTAR</button>
       <div class="mapa-titulo"></div>
       <div class="mapa-acoes">
         <button type="button" class="mapa-iniciar">INICIAR</button>
-        <button type="button" class="mapa-musica">ESCOLHER MÚSICA</button>
+        <button type="button" class="mapa-musica">ESCOLHER M�SICA</button>
       </div>
-    </section>    <section class="tela" id="tela-config" aria-label="Escolher dificuldade e música">
-      <button class="config-opcao bolo-facil" data-dificuldade="facil" aria-label="Dificuldade fácil"></button>
+    </section>    <section class="tela" id="tela-config" aria-label="Escolher dificuldade e m�sica">
+      <button class="config-opcao bolo-facil" data-dificuldade="facil" aria-label="Dificuldade f�cil"></button>
       <button class="config-opcao bolo-normal" data-dificuldade="normal" aria-label="Dificuldade normal"></button>
-      <button class="config-opcao bolo-dificil" data-dificuldade="dificil" aria-label="Dificuldade difícil"></button>
+      <button class="config-opcao bolo-dificil" data-dificuldade="dificil" aria-label="Dificuldade dif�cil"></button>
       <button class="config-opcao disco-journey" data-musica="0" aria-label="Sweet Journey"></button>
       <button class="config-opcao disco-dream" data-musica="1" aria-label="Candy Dream"></button>
       <button class="config-opcao disco-town" data-musica="2" aria-label="Strawberry Town"></button>
-      <button class="config-voltar" type="button">← VOLTAR</button>
+      <button class="config-voltar" type="button">? VOLTAR</button>
     </section>    <section class="tela" id="tela-jogo" aria-label="Jogo"><canvas id="cv-jogo" width="1672" height="941"></canvas></section>
     <div id="aviso" role="status"></div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
-  <script src="js/jogo.js"></script>
+  <script src="js/jogo.js?v=20261123g"></script>
   <script src="js/personagens.js"></script>
-  <script src="js/corrida.js"></script>
+  <script src="js/corrida.js?v=20261123g"></script>
 </body>
 </html>
+
+
+
 

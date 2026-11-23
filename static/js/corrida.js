@@ -1,4 +1,4 @@
-﻿// ===== Mapa de corrida rÃ­tmica (arte e mÃºsica originais, feitas em cÃ³digo) =====
+// ===== Mapa de corrida rítmica (arte e música originais, feitas em código) =====
 const Corrida = (() => {
   const cv = document.getElementById('cv-jogo'), g = cv.getContext('2d');
   const CW = 1672, CH = 941, FLOOR = 650, HITX = 420, PX = 270, VEL = 780;
@@ -91,7 +91,7 @@ const Corrida = (() => {
     const c = document.createElement('canvas'); c.width = CW; c.height = CH; const x = c.getContext('2d');
     let gr = x.createLinearGradient(0, 0, 0, FLOOR); gr.addColorStop(0, '#150a2e'); gr.addColorStop(.6, '#2c1659'); gr.addColorStop(1, '#6a2a8f');
     x.fillStyle = gr; x.fillRect(0, 0, CW, CH);
-    // arcos gÃ³ticos e pilares
+    // arcos góticos e pilares
     for (let i = 0; i < 8; i++) {
       const cx = 140 + i * 235; x.strokeStyle = 'rgba(150,110,230,.22)'; x.lineWidth = 6; x.fillStyle = 'rgba(20,8,48,.35)';
       x.beginPath(); x.moveTo(cx - 90, FLOOR - 20); x.lineTo(cx - 90, 330); x.quadraticCurveTo(cx - 90, 210, cx, 150); x.quadraticCurveTo(cx + 90, 210, cx + 90, 330); x.lineTo(cx + 90, FLOOR - 20); x.closePath(); x.fill(); x.stroke();
@@ -100,14 +100,14 @@ const Corrida = (() => {
     // losangos decorativos
     [[1500, 260], [90, 280]].forEach(([dx, dy]) => { x.save(); x.translate(dx, dy); x.rotate(Math.PI / 4); x.strokeStyle = 'rgba(190,150,255,.35)'; x.lineWidth = 5;
       for (let k = 1; k <= 3; k++) x.strokeRect(-40 * k, -40 * k, 80 * k, 80 * k); x.restore(); });
-    // estÃ¡tuas de caveira
+    // estátuas de caveira
     [[930, 0], [1220, 1]].forEach(([sx, piscar]) => {
-      x.fillStyle = 'rgba(25,10,55,.55)'; x.beginPath(); x.moveTo(sx - 110, FLOOR - 15); x.lineTo(sx - 110, 380); x.quadraticCurveTo(sx - 110, 260, sx, 230); x.quadraticCurveTo(sx + 110, 260, sx + 110, 380); x.lineTo(sx + 110, FLOOR - 15); x.fill();
+      x.fillStyle = 'rgba(25,10,55, .24)'; x.beginPath(); x.moveTo(sx - 110, FLOOR - 15); x.lineTo(sx - 110, 380); x.quadraticCurveTo(sx - 110, 260, sx, 230); x.quadraticCurveTo(sx + 110, 260, sx + 110, 380); x.lineTo(sx + 110, FLOOR - 15); x.fill();
       x.fillStyle = 'rgba(170,120,230,.6)'; x.beginPath(); x.arc(sx, 345, 52, 0, 7); x.fill(); x.fillRect(sx - 30, 380, 60, 38);
       x.fillStyle = '#1a0b36'; x.beginPath(); x.arc(sx - 20, 345, 13, 0, 7); x.arc(sx + 20, 345, 13, 0, 7); x.fill();
       x.fillStyle = '#ff5cc8'; x.beginPath(); x.arc(sx - 20, 345, 5, 0, 7); x.arc(sx + 20, 345, 5, 0, 7); x.fill();
-      x.strokeStyle = 'rgba(170,120,230,.55)'; x.lineWidth = 8; x.beginPath(); x.moveTo(sx, 420); x.lineTo(sx, 520); x.moveTo(sx - 40, 440); x.quadraticCurveTo(sx, 470, sx + 40, 440); x.stroke();
-      x.fillStyle = 'rgba(120,80,200,.55)'; x.fillRect(sx - 80, 535, 160, 75);
+      x.strokeStyle = 'rgba(170,120,230, .24)'; x.lineWidth = 8; x.beginPath(); x.moveTo(sx, 420); x.lineTo(sx, 520); x.moveTo(sx - 40, 440); x.quadraticCurveTo(sx, 470, sx + 40, 440); x.stroke();
+      x.fillStyle = 'rgba(120,80,200, .24)'; x.fillRect(sx - 80, 535, 160, 75);
     });
     // estandarte com caveira
     x.fillStyle = '#a02a6a'; x.fillRect(1060, 0, 210, 180); x.fillStyle = '#126a88'; x.beginPath(); x.moveTo(1165 - 105, 180); x.lineTo(1165, 250); x.lineTo(1165 + 105, 180); x.fill();
@@ -115,7 +115,7 @@ const Corrida = (() => {
     x.fillStyle = '#7a1c52'; x.beginPath(); x.arc(1148, 66, 11, 0, 7); x.arc(1182, 66, 11, 0, 7); x.fill();
     // faixa inferior (caveiras escuras) e neon
     x.fillStyle = '#1b0a35'; x.fillRect(0, FLOOR + 50, CW, CH);
-    for (let r = 0; r < 4; r++) for (let i = 0; i < 24; i++) { x.fillStyle = 'rgba(70,35,130,.55)'; x.beginPath(); x.ellipse(i * 78 + (r % 2) * 39, FLOOR + 90 + r * 48, 26, 30, 0, 0, 7); x.fill(); }
+    for (let r = 0; r < 4; r++) for (let i = 0; i < 24; i++) { x.fillStyle = 'rgba(70,35,130, .24)'; x.beginPath(); x.ellipse(i * 78 + (r % 2) * 39, FLOOR + 90 + r * 48, 26, 30, 0, 0, 7); x.fill(); }
     gr = x.createLinearGradient(0, FLOOR + 50, 0, CH); gr.addColorStop(0, 'rgba(255,60,190,0)'); gr.addColorStop(1, 'rgba(255,60,190,.85)'); x.fillStyle = gr; x.fillRect(0, FLOOR + 50, CW, CH);
     return c;
   }
@@ -187,7 +187,7 @@ const Corrida = (() => {
     let nome, pulo = 0, dx = 0, alfa = 1;
     if (fimTela) nome = fimTela.venceu ? 'jump' : 'hurt';
     else if (pausado) nome = 'idle';
-    else if (dH >= 0 && dH < .55) { nome = 'hurt'; dx = -40 * (1 - dH / .55); alfa = Math.floor(dH * 18) % 2 ? .45 : 1; }
+    else if (dH >= 0 && dH < .24) { nome = 'hurt'; dx = -28 * (1 - dH / .24); alfa = Math.floor(dH * 18) % 2 ? .45 : 1; }
     else if (ataque.lane === 1 && dA >= 0 && dA < .45) { pulo = Math.sin(dA / .45 * Math.PI) * 190; nome = dA < .08 ? 'run3' : 'jump'; }
     else if (ataque.lane === 0 && dA >= 0 && dA < .26) { nome = 'kick'; dx = 18; }
     else nome = 'run' + (Math.floor(t * 12) % 4);
@@ -213,7 +213,7 @@ const Corrida = (() => {
       g.fillStyle = '#ff2fb4'; g.beginPath(); g.ellipse(0, 0, 118, 70, 0, 0, 7); g.fill();
       texto(String(placar.combo), 0, 18, 84, '#ffe94a', '#7a1052', 'center'); texto('COMBO', 0, 56, 34, '#fff', '#7a1052', 'center'); g.restore();
     }
-    g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(1530, 34, 14, 52); g.fillRect(1562, 34, 14, 52);   // botÃ£o pausa
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(1530, 34, 14, 52); g.fillRect(1562, 34, 14, 52);   // botão pausa
     // barra de vida / fever
     const bx = 560, by = 858, bw = 560, bh = 60;
     g.fillStyle = '#1b0a35'; g.beginPath(); g.roundRect(bx, by, bw, bh, 16); g.fill(); g.strokeStyle = '#4fc3ff'; g.lineWidth = 6; g.stroke();
@@ -228,21 +228,21 @@ const Corrida = (() => {
     g.fillStyle = 'rgba(15,5,35,.78)'; g.fillRect(0, 0, CW, CH);
     if (pausado) { texto('PAUSADO', CW / 2, 330, 120, '#fff', '#5a2fb0', 'center'); botao('CONTINUAR', 560, 430, 550, 90, '#ff2fa8'); botao('MENU', 560, 550, 550, 90, '#6a4be0'); }
     else {
-      texto(fimTela.venceu ? 'COMPLETO!' : 'FIM DE JOGO', CW / 2, 230, 120, '#fff', '#5a2fb0', 'center');
+      texto(fimTela.venceu ? 'COMPLETO!' : 'FIM DE JOGO', CW / 2, 185, 100, '#fff', '#5a2fb0', 'center');
       const p = placar, tot = p.perfect + p.great + p.miss, pc = tot ? Math.round((p.perfect + p.great * .6) / tot * 100) : 0;
       const rank = !fimTela.venceu ? 'D' : pc > 95 ? 'S' : pc > 85 ? 'A' : pc > 70 ? 'B' : 'C';
-      texto('Pontos ' + p.score, CW / 2, 330, 56, '#ffe94a', '#7a1052', 'center');
-      texto(`Perfect ${p.perfect}   Great ${p.great}   Miss ${p.miss}`, CW / 2, 410, 44, '#fff', '#3a1a80', 'center');
-      texto(`Combo mÃ¡x. ${p.maxCombo}   PrecisÃ£o ${pc}%   Nota ${rank}`, CW / 2, 480, 44, '#b9a2ff', '#3a1a80', 'center');
-      botao('JOGAR DE NOVO', 560, 560, 550, 90, '#ff2fa8'); botao('MENU', 560, 680, 550, 90, '#6a4be0');
+      texto('Pontos ' + p.score, CW / 2, 260, 50, '#ffe94a', '#7a1052', 'center');
+      texto(`Perfect ${p.perfect}   Great ${p.great}   Miss ${p.miss}`, CW / 2, 330, 38, '#fff', '#3a1a80', 'center');
+      texto(`Combo máx. ${p.maxCombo}   Precisão ${pc}%   Nota ${rank}`, CW / 2, 390, 38, '#b9a2ff', '#3a1a80', 'center');
+      botao('JOGAR DE NOVO', 560, 480, 550, 82, '#ff2fa8'); botao('MENU', 560, 590, 550, 82, '#6a4be0');
     }
   }
   function quadro() {
     raf = requestAnimationFrame(quadro);
     const t = tempo();
     if (!pausado && !fimTela) { logica(t); }
-    g.save(); const dh = t - hurtT; if (dh >= 0 && dh < .25 && !pausado) g.translate((Math.random() - .5) * 18, (Math.random() - .5) * 12);
-    const panMapa = window.gsap ? movimentoMapa.x : -55 + Math.sin(t * .3) * 55; g.drawImage(bgPronto, -110 + panMapa, -38, CW + 220, CH + 76); if (!mapaCarregado) piso(t);
+    g.save(); const dh = t - hurtT; if (dh >= 0 && dh < .14 && !pausado) g.translate((Math.random() - .5) * 8, (Math.random() - .5) * 5);
+    const panMapa = window.gsap ? movimentoMapa.x : -35 + Math.sin(t * .3) * 35; g.drawImage(bgPronto, -70 + panMapa, -25, CW + 140, CH + 50); if (!mapaCarregado) piso(t);
     ambiente(t);
     for (const n of notas) if (!n.feito) inimigo(n, t);
     g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 5; [FLOOR - 42, 400].forEach(y => { g.beginPath(); g.arc(HITX, y, 52, 0, 7); g.stroke(); });
@@ -252,13 +252,13 @@ const Corrida = (() => {
     popups = popups.filter(p => t - p.t0 < .6);
     for (const p of popups) { const a = (t - p.t0) / .6; g.globalAlpha = 1 - a; texto(p.txt, HITX - 120, p.y - a * 60, 64, p.cor, '#7a1052', 'center'); g.globalAlpha = 1; }
     g.restore();
-    if (t - hurtT >= 0 && t - hurtT < .3 && !pausado) { g.fillStyle = `rgba(255,30,60,${.32 * (1 - (t - hurtT) / .3)})`; g.fillRect(0, 0, CW, CH); }
+    if (t - hurtT >= 0 && t - hurtT < .15 && !pausado) { g.fillStyle = `rgba(255,30,60,${.2 * (1 - (t - hurtT) / .15)})`; g.fillRect(0, 0, CW, CH); }
     hud(t);
     if (pausado || fimTela) overlay();
     if (auto) texto('AUTO (A)', CW - 60, 140, 34, '#ffe94a', '#7a1052', 'right');
   }
 
-  // ---------- LÃ³gica ----------
+  // ---------- Lógica ----------
   function acertar(n, dt, t) {
     n.feito = true; const perf = Math.abs(dt) <= PERF, p = placar;
     p.combo++; p.maxCombo = Math.max(p.maxCombo, p.combo); p.ultimo = t; p.fever = Math.min(100, p.fever + 3);
@@ -286,7 +286,7 @@ const Corrida = (() => {
     if (alvo) acertar(alvo, t - alvo.t, t); else { ataque = { t, lane }; sfx(200, .05, 'triangle', .05); }
   }
 
-  // ---------- Ãudio (mÃºsica e efeitos sintetizados) ----------
+  // ---------- Áudio (música e efeitos sintetizados) ----------
   function sfx(f, d, tipo, vol, quando) {
     const o = ac.createOscillator(), v = ac.createGain(), s = quando || ac.currentTime;
     o.type = tipo; o.frequency.value = f; v.gain.setValueAtTime(vol, s); v.gain.exponentialRampToValueAtTime(.001, s + d);
@@ -298,7 +298,7 @@ const Corrida = (() => {
     src.buffer = b; v.gain.setValueAtTime(vol, s); v.gain.exponentialRampToValueAtTime(.001, s + d); src.connect(f); f.connect(v); v.connect(ac.destination); src.start(s);
   }
   const MUSICAS = [{ raiz:[110,110,130.8,98], arp:[1,1.5,2,1.5,1.25,1.5,2,2.5], tipo:'sawtooth', brilho:'square' }, { raiz:[146.8,130.8,110,98], arp:[1,1.25,1.5,2,2.5,2,1.5,1.25], tipo:'triangle', brilho:'sine' }, { raiz:[98,123.5,146.8,123.5], arp:[1,1.5,1.25,2,1.5,2.5,2,1.5], tipo:'sine', brilho:'triangle' }];
-  function musica() {   // agenda colcheias com antecedÃªncia
+  function musica() {   // agenda colcheias com antecedência
     const passo = SPB / 2, ate = ac.currentTime + .35;
     while (T0 + proxStep * passo < ate) {
       const s = proxStep, quando = T0 + s * passo, beat = Math.floor(s / 2), barra = Math.floor(beat / 4), arranjo = MUSICAS[musicaJogo] || MUSICAS[0];
@@ -318,7 +318,7 @@ const Corrida = (() => {
   function configurar(dificuldade, musica) { dificuldadeJogo = ['facil','normal','dificil'].includes(dificuldade) ? dificuldade : 'normal'; musicaJogo = Math.max(0, Math.min(2, Number(musica) || 0)); JAN = dificuldadeJogo === 'facil' ? 0.19 : dificuldadeJogo === 'dificil' ? 0.10 : 0.14; PERF = dificuldadeJogo === 'facil' ? 0.09 : dificuldadeJogo === 'dificil' ? 0.05 : 0.07; } async function iniciar() {
     if (rodando) return;
     ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') await ac.resume();
-    bgPronto = bgPronto || await carregarFundo(); if (window.gsap) { if (mapaTween) mapaTween.kill(); movimentoMapa.x = 0; mapaTween = gsap.to(movimentoMapa, { x:-110, duration:9, repeat:-1, yoyo:true, ease:'sine.inOut' }); } novoJogo();
+    bgPronto = bgPronto || await carregarFundo(); if (window.gsap) { if (mapaTween) mapaTween.kill(); movimentoMapa.x = 0; mapaTween = gsap.to(movimentoMapa, { x:-35, duration:8, repeat:-1, yoyo:true, ease:'sine.inOut' }); } novoJogo();
     await carregarPoses();
     T0 = ac.currentTime + .4; rodando = true; cancelAnimationFrame(raf); clearTimeout(timer); quadro();
   }
@@ -339,7 +339,7 @@ const Corrida = (() => {
     if (pausado || fimTela) {
       const sel = (y1) => x > 560 && x < 1110 && y > y1 && y < y1 + 90;
       if (pausado) { if (sel(430)) pausar(); else if (sel(550)) { pausado = false; ac.resume(); irPara('inicial'); } }
-      else { if (sel(560)) reiniciar(); else if (sel(680)) irPara('inicial'); }
+      else { if (sel(480)) reiniciar(); else if (sel(590)) irPara('inicial'); }
       return;
     }
     if (x > 1500 && y < 110) return pausar();
@@ -347,5 +347,9 @@ const Corrida = (() => {
   });
   return { iniciar, parar, tecla, configurar };
 })();
+
+
+
+
 
 

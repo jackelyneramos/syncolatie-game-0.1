@@ -1,9 +1,9 @@
-:root { --bg: #f8b4c8; --glow: rgba(255,255,255,.95); }
+﻿:root { --bg: #f8b4c8; --glow: rgba(255,255,255,.95); }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; background: var(--bg); overflow: hidden; }
 body { display: flex; align-items: center; justify-content: center; }
 
-/* Palco 16:9 (proporção exata das imagens 1672x941) */
+/* Palco 16:9 (proporÃ§Ã£o exata das imagens 1672x941) */
 #palco {
   position: relative; container-type: inline-size;
   width: min(100vw, calc(100vh * 1672 / 941));
@@ -55,15 +55,12 @@ body { display: flex; align-items: center; justify-content: center; }
 #tela-ranking .ranking-painel {
   animation: painel-flutuando 4.5s ease-in-out infinite;
 }
-#tela-fases.ativa {
-  background-size: 104% 104%;
-  animation: mapa-passeando 18s ease-in-out infinite alternate;
-}
+#tela-fases.ativa { background-size:112% 112%; animation:none; }
 #tela-fases .mapa-titulo {
   animation: painel-flutuando 4s ease-in-out infinite;
 }
 
-/* Áreas clicáveis invisíveis sobre os botões desenhados nas imagens */
+/* Ãreas clicÃ¡veis invisÃ­veis sobre os botÃµes desenhados nas imagens */
 .zona {
   position: absolute; z-index: 2; border: 0; background: transparent; cursor: pointer;
   border-radius: 1.2%;
@@ -88,7 +85,7 @@ body { display: flex; align-items: center; justify-content: center; }
   animation: halo-acao .8s ease-out;
 }
 
-/* Anel que marca a opção escolhida */
+/* Anel que marca a opÃ§Ã£o escolhida */
 .sel {
   position: absolute; border-radius: 1.4%; pointer-events: none;
   border: .35vmin solid #e7558d;
@@ -137,7 +134,7 @@ body { display: flex; align-items: center; justify-content: center; }
 .item.cor { aspect-ratio: 1.25; padding: 0; }
 .item:hover { transform: scale(1.05); }
 .item.on { border-color: #ed5790; box-shadow: 0 0 calc(var(--u)*14) rgba(237,87,144,.65); }
-.item.on::after { content: "✓"; position: absolute; right: calc(var(--u)*-8); top: calc(var(--u)*-8); width: calc(var(--u)*30); height: calc(var(--u)*30);
+.item.on::after { content: "âœ“"; position: absolute; right: calc(var(--u)*-8); top: calc(var(--u)*-8); width: calc(var(--u)*30); height: calc(var(--u)*30);
                   border-radius: 50%; background: #e7558d; color: #fff; font: 800 calc(var(--u)*20)/calc(var(--u)*30) system-ui; text-align: center; }
 
 /* ===== Tela do jogo ===== */
@@ -277,7 +274,7 @@ body { display: flex; align-items: center; justify-content: center; }
 .tirar { display: inline-block; margin: 0 0 calc(var(--u)*10); padding: calc(var(--u)*10) calc(var(--u)*24); border: calc(var(--u)*4) solid #e8b1a5;
          border-radius: calc(var(--u)*14); background: #fff1e7; color: #843c48; font: 800 calc(var(--u)*24) system-ui, sans-serif; cursor: pointer; }
 .tirar:hover { background: #ffe1e9; border-color: #e7558d; }
-/* Ajustes da arte nova: remove o avatar impresso e deixa s� o personagem interativo. */
+/* Ajustes da arte nova: remove o avatar impresso e deixa sï¿½ o personagem interativo. */
 #personagem { z-index: 2; }
 #tela-personalizar::after {
   content: "";
@@ -294,3 +291,4 @@ body { display: flex; align-items: center; justify-content: center; }
 .plataforma { display: none; }
 #painel, .aba { z-index: 3; }
 .zona { z-index: 4; }
+

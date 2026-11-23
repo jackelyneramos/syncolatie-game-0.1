@@ -53,7 +53,7 @@ function criarZona(pai, r, rotulo, aoClicar) {
 let audioCtx, ultimoSomUI = 0;
 function bip(freq = 880) { const agora = performance.now(); if (agora - ultimoSomUI < 110) return; ultimoSomUI = agora;
   try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
     o.type = 'square'; o.frequency.value = freq;
     g.gain.setValueAtTime(.08, audioCtx.currentTime);
@@ -61,7 +61,7 @@ function bip(freq = 880) { const agora = performance.now(); if (agora - ultimoSo
     o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + .12);
   } catch (e) {}
 }
-document.addEventListener('pointerdown', e => { if (e.target.closest('button,.zona')) bip(760); }, true); document.addEventListener('pointerover', e => { if (e.target.closest('button,.zona')) bip(620); }, true); let timerAviso;
+document.addEventListener('pointerdown', e => { if (e.target.closest('button,.zona')) bip(760); }, true); let timerAviso;
 function mostrarAviso(txt) {
   aviso.textContent = txt; aviso.classList.add('mostrar');
   clearTimeout(timerAviso); timerAviso = setTimeout(() => aviso.classList.remove('mostrar'), 1800);
@@ -69,15 +69,15 @@ function mostrarAviso(txt) {
 // Movimento de entrada e flutuação das opções usando GSAP
 function animarEntradaTela(nome) {
   if (!window.gsap) return;
-  gsap.killTweensOf(document.querySelectorAll('.config-opcao,.mapa-acoes button,#personagem,#painel'));
+  gsap.killTweensOf(document.querySelectorAll('.tela,.config-opcao,.mapa-acoes button,.mapa-titulo,.mapa-voltar,#personagem,#painel'));
   const tela = document.querySelector('.tela.ativa');
   if (!tela) return;
   const itens = tela.querySelectorAll('.zona,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
   gsap.killTweensOf(itens);
   if (itens.length) gsap.fromTo(itens, { y:16, scale:.97, opacity:0 }, { y:0, scale:1, opacity:1, duration:.5, stagger:.035, ease:'back.out(1.45)', clearProps:'opacity' });
-  if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  if (nome === 'config-dificuldade' || nome === 'config-musica') { const baixo = nome === 'config-musica'; gsap.fromTo(tela, { backgroundSize:'100% 200%', backgroundPosition:baixo ? 'center bottom' : 'center top' }, { backgroundSize:'102% 204%', backgroundPosition:baixo ? 'center bottom' : 'center top', duration:14, repeat:-1, yoyo:true, ease:'sine.inOut' }); } if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
   if (nome === 'config-musica') gsap.to(tela.querySelectorAll('[data-musica]'), { y:-8, duration:1.1, stagger:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
-  if (nome === 'mapa-fases') gsap.to(tela.querySelectorAll('.mapa-acoes button,.mapa-titulo'), { y:-6, duration:1.5, stagger:.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  if (nome === 'mapa-fases') gsap.fromTo(tela, { backgroundPosition:'48% 52%', backgroundSize:'106% 106%' }, { backgroundPosition:'52% 48%', backgroundSize:'110% 110%', duration:16, repeat:-1, yoyo:true, ease:'sine.inOut' }); if (nome === 'mapa-fases') gsap.to(tela.querySelectorAll('.mapa-acoes button,.mapa-titulo'), { y:-6, duration:1.5, stagger:.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
   if (nome === 'personalizar') gsap.to(tela.querySelectorAll('#personagem,.aba'), { y:-5, duration:2.4, stagger:.12, repeat:-1, yoyo:true, ease:'sine.inOut' });
 } let atual = 'inicial';
 function irPara(nome) {
@@ -99,9 +99,9 @@ const botoesInicio = [
 const RANKING_KEY = 'jogoRanking';
 function lerRanking() { try { const r = JSON.parse(localStorage.getItem(RANKING_KEY) || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
 function registrarPontuacao(pontos) {
-  const nome = (window.prompt('Seu nome para o ranking:', 'Jogador') || '').trim().slice(0, 16);
-  if (!nome) return;
-  const r = lerRanking(); r.push({ nome, pontos: Math.max(0, Math.floor(pontos)), data: Date.now() });
+  let nome = 'Jogador'; try { nome = (localStorage.getItem('nomeRanking') || nome).trim().slice(0, 16) || 'Jogador'; } catch (e) {}
+  const r = lerRanking();
+  r.push({ nome, pontos: Math.max(0, Math.floor(pontos)), data: Date.now() });
   r.sort((a, b) => b.pontos - a.pontos || a.data - b.data);
   try { localStorage.setItem(RANKING_KEY, JSON.stringify(r.slice(0, 10))); } catch (e) {}
 }
@@ -296,9 +296,8 @@ document.querySelectorAll('[data-dificuldade]').forEach(botao => botao.addEventL
 document.querySelectorAll('[data-musica]').forEach(botao => botao.addEventListener('click', () => {
   musicaEscolhida = Number(botao.dataset.musica);
   telaConfig.querySelectorAll('[data-musica]').forEach(b => b.classList.toggle('selecionada', b === botao));
-  bip(1040); Corrida.configurar(dificuldadeEscolhida, musicaEscolhida); irPara('jogo');
-}));
-document.querySelector('.config-voltar').addEventListener('click', () => { bip(650);
+  bip(1040); irPara('mapa-fases');
+}));document.querySelector('.config-voltar').addEventListener('click', () => { bip(650);
   if (atual === 'config-musica') irPara('mapa-fases'); else irPara('inicial');
 });
 
@@ -314,4 +313,10 @@ document.addEventListener('keydown', (e) => {
 
 // ===== InÃ­cio =====
 // As peÃ§as em camadas foram substituÃ­das pela seleÃ§Ã£o de personagens completos.
+
+
+
+
+
+
 
