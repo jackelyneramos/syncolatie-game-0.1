@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jogo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="palco">
+    <section class="tela ativa" id="tela-inicial" aria-label="Tela inicial"></section>
+    <section class="tela" id="tela-personalizar" aria-label="Personalizar personagem"></section>
+    <section class="tela" id="tela-jogo" aria-label="Jogo"><canvas id="cv-jogo" width="1672" height="941"></canvas></section>
+    <div id="aviso" role="status"></div>
+  </main>
+  <script src="js/jogo.js"></script>
+  <script src="js/corrida.js"></script>
+</body>
+</html>
