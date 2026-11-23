@@ -9,29 +9,84 @@ body { display: flex; align-items: center; justify-content: center; }
   width: min(100vw, calc(100vh * 1672 / 941));
   aspect-ratio: 1672 / 941;
   user-select: none;
+  isolation: isolate;
+  filter: drop-shadow(0 1.2vmin 2.4vmin rgba(30, 8, 48, .3));
 }
 
 .tela {
   position: absolute; inset: 0;
   background-size: 100% 100%; background-repeat: no-repeat;
   opacity: 0; visibility: hidden; transition: opacity .25s;
+  overflow: hidden;
 }
 .tela.ativa { opacity: 1; visibility: visible; }
+.tela::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: -6%;
+  pointer-events: none;
+  opacity: .36;
+  background:
+    radial-gradient(circle at 9% 22%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 23% 76%, rgba(255,240,167,.9) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 42% 18%, rgba(255,255,255,.8) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 59% 68%, rgba(255,210,239,.95) 0 2.5px, transparent 4px),
+    radial-gradient(circle at 78% 30%, rgba(255,255,255,.9) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 91% 79%, rgba(255,239,172,.9) 0 2px, transparent 3.5px),
+    radial-gradient(ellipse at 18% 44%, rgba(255,244,197,.2), transparent 25%),
+    radial-gradient(ellipse at 83% 56%, rgba(255,111,190,.18), transparent 28%);
+  animation: particulas-flutuando 8s ease-in-out infinite alternate;
+}
+.tela > * { z-index: 2; }
+.ranking-painel { position: relative; z-index: 2; }
+#tela-config .config-opcao { z-index: 2; }
 #tela-inicial     { background-image: url("../img/tela-inicial.png"); }
 #tela-personalizar { background-image: url("../img/tela-personalizar-original.png"); }
 
+#tela-inicial, #tela-fases {
+  animation: fundo-respirando 18s ease-in-out infinite alternate;
+}
+#tela-jogo::before { opacity: .12; }
+#tela-personalizar.ativa {
+  background-size: 104% 104%;
+  animation: personagem-passeando 18s ease-in-out infinite alternate;
+}
+#tela-ranking .ranking-painel {
+  animation: painel-flutuando 4.5s ease-in-out infinite;
+}
+#tela-fases.ativa {
+  background-size: 104% 104%;
+  animation: mapa-passeando 18s ease-in-out infinite alternate;
+}
+#tela-fases .mapa-titulo {
+  animation: painel-flutuando 4s ease-in-out infinite;
+}
+
 /* Áreas clicáveis invisíveis sobre os botões desenhados nas imagens */
 .zona {
-  position: absolute; border: 0; background: transparent; cursor: pointer;
+  position: absolute; z-index: 2; border: 0; background: transparent; cursor: pointer;
   border-radius: 1.2%;
-  transition: transform .12s, box-shadow .12s, background .12s;
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s, background .2s;
 }
 .zona:hover, .zona:focus-visible, .zona.ativo {
-  outline: none; transform: scale(1.025);
-  background: rgba(255,255,255,.14);
-  box-shadow: 0 0 0 .25vmin var(--glow), 0 0 3vmin rgba(255,255,255,.55);
+  outline: none; transform: scale(1.018);
+  background: radial-gradient(ellipse, rgba(255,255,255,.16), rgba(255,255,255,.025) 72%);
+  box-shadow: 0 0 0 .2vmin rgba(255,244,224,.9), 0 0 2vmin rgba(255,82,153,.48), inset 0 0 1vmin rgba(255,255,255,.16);
 }
 .zona:active { transform: scale(.97); }
+.zona::after {
+  content: "";
+  position: absolute;
+  inset: 3%;
+  border: .22vmin solid rgba(255,255,255,.82);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+.zona:hover::after, .zona:focus-visible::after {
+  animation: halo-acao .8s ease-out;
+}
 
 /* Anel que marca a opção escolhida */
 .sel {
@@ -89,6 +144,130 @@ body { display: flex; align-items: center; justify-content: center; }
 #tela-jogo { background: #1a0d33; }
 #cv-jogo { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
 
+.item, .aba, .gen, .tirar, #voltar-ranking, .config-opcao, .config-voltar, .mapa-voltar {
+  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, filter .22s;
+}
+.item:hover, .aba:hover, .gen:hover, .tirar:hover, #voltar-ranking:hover,
+.config-opcao:hover, .config-voltar:hover, .mapa-voltar:hover { filter: brightness(1.1); }
+.config-opcao::after {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.52) 48%, transparent 66%);
+  opacity: 0;
+  transform: translateX(-35%);
+  pointer-events: none;
+}
+.config-opcao:hover::after, .config-opcao:focus-visible::after {
+  opacity: .8;
+  transform: translateX(35%);
+  transition: opacity .2s, transform .55s ease;
+}
+#tela-config .config-voltar, #tela-fases .mapa-voltar,
+.mapa-acoes button {
+  z-index: 3;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .55em 1.15em;
+  border: .28vmin solid #fff2df;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(180deg, #ffbad5 0%, #ff82b4 44%, #ed4e8d 100%);
+  box-shadow: 0 .42vmin 0 #a93361, 0 .65vmin 1.5vmin rgba(126,34,77,.32), inset 0 .25vmin .5vmin rgba(255,255,255,.72);
+  cursor: pointer;
+  font: 900 clamp(11px, 1.45vw, 23px)/1.1 "Trebuchet MS", system-ui, sans-serif;
+  letter-spacing: .035em;
+  text-shadow: 0 1px 0 #a93361, 0 2px 2px rgba(108,20,61,.38);
+}
+#tela-config .config-voltar::before, #tela-fases .mapa-voltar::before,
+.mapa-acoes button::before {
+  content: "";
+  position: absolute;
+  inset: 12% 9% auto;
+  height: 34%;
+  border-radius: 999px;
+  background: linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,0));
+  pointer-events: none;
+}
+#tela-config .config-voltar {
+  left: 3%;
+  top: 86%;
+  width: auto;
+  height: 9%;
+}
+#tela-fases .mapa-voltar {
+  left: 2.5%;
+  top: 3%;
+  width: auto;
+  height: auto;
+}
+.mapa-acoes {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 4%;
+  display: flex;
+  gap: 1.2vw;
+  transform: translateX(-50%);
+}
+.mapa-acoes button { min-width: 13vw; min-height: 7.5vh; }
+.mapa-acoes .mapa-iniciar {
+  border-color: #fff0bd;
+  background: linear-gradient(180deg, #ffdb82 0%, #ff9a76 40%, #f04e86 100%);
+  box-shadow: 0 .5vmin 0 #a93761, 0 0 2vmin rgba(255,90,153,.48), inset 0 .3vmin .5vmin rgba(255,255,255,.78);
+  font-size: clamp(14px, 2.2vw, 34px);
+}
+.mapa-acoes button:hover, .mapa-acoes button:focus-visible,
+#tela-config .config-voltar:hover, #tela-config .config-voltar:focus-visible,
+#tela-fases .mapa-voltar:hover, #tela-fases .mapa-voltar:focus-visible {
+  outline: .35vmin solid rgba(255,255,255,.8);
+  transform: translateY(-.35vmin) scale(1.04);
+  filter: brightness(1.14);
+}
+.mapa-acoes button:active, #tela-config .config-voltar:active, #tela-fases .mapa-voltar:active {
+  transform: translateY(.15vmin) scale(.98);
+}
+
+@keyframes fundo-respirando {
+  from { background-size: 100% 100%; }
+  to { background-size: 102% 102%; }
+}
+@keyframes particulas-flutuando {
+  from { transform: translate3d(-1.3%, 1.1%, 0); }
+  to { transform: translate3d(1.3%, -1.1%, 0); }
+}
+@keyframes mapa-passeando {
+  from { background-position: 0 0; }
+  to { background-position: 100% 100%; }
+}
+@keyframes personagem-passeando {
+  from { background-position: 0 50%; }
+  to { background-position: 100% 50%; }
+}
+@keyframes painel-flutuando {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-.55vmin); }
+}
+@keyframes halo-acao {
+  0% { opacity: 0; transform: scale(.96); }
+  35% { opacity: .75; }
+  100% { opacity: 0; transform: scale(1.035); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .tela::before { animation-duration: 14s; }
+  #tela-fases.ativa { animation-duration: 24s; }
+  #tela-personalizar.ativa, #tela-ranking .ranking-painel,
+  #tela-fases .mapa-titulo { animation-duration: 6s; }
+}
+
 .generos { position: sticky; top: calc(var(--u)*-14); z-index: 3; display: flex; gap: calc(var(--u)*12);
            margin: calc(var(--u)*-14) calc(var(--u)*-16) calc(var(--u)*10); padding: calc(var(--u)*12) calc(var(--u)*16);
            background: linear-gradient(#fff5eb,#ffe7d8); }
@@ -98,7 +277,7 @@ body { display: flex; align-items: center; justify-content: center; }
 .tirar { display: inline-block; margin: 0 0 calc(var(--u)*10); padding: calc(var(--u)*10) calc(var(--u)*24); border: calc(var(--u)*4) solid #e8b1a5;
          border-radius: calc(var(--u)*14); background: #fff1e7; color: #843c48; font: 800 calc(var(--u)*24) system-ui, sans-serif; cursor: pointer; }
 .tirar:hover { background: #ffe1e9; border-color: #e7558d; }
-/* Ajustes da arte nova: remove o avatar impresso e deixa s� o personagem interativo. */
+/* Ajustes da arte nova: remove o avatar impresso e deixa s� o personagem interativo. */
 #personagem { z-index: 2; }
 #tela-personalizar::after {
   content: "";

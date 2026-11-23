@@ -1,4 +1,4 @@
-// Coordenadas em pixels da imagem original (1672 x 941)
+﻿// Coordenadas em pixels da imagem original (1672 x 941)
 const W = 1672, H = 941;
 const BASES = ['img/partes/', 'img/partes-m/'];   // 0 = mulher, 1 = homem
 const base = () => BASES[personagem.genero || 0];
@@ -8,16 +8,16 @@ const INICIAL = {
   ranking:      [572, 565, 1110, 668],
   personalizar: [572, 680, 1110, 788]
 };
-const ABAS = [  // [x1, y1, x2, y2, rótulo, ícone]
-  [701, 176, 886, 300, 'CABELO', '💇'], [890, 180, 1067, 291, 'ROUPA', '👕'],
-  [1076, 180, 1264, 291, 'ACESSÓRIOS', '🎀'], [1270, 180, 1454, 291, 'PELE', '🙂'],
-  [1462, 180, 1622, 291, 'COR', '🎨']
+const ABAS = [  // [x1, y1, x2, y2, rÃ³tulo, Ã­cone]
+  [701, 176, 886, 300, 'CABELO', 'ðŸ’‡'], [890, 180, 1067, 291, 'ROUPA', 'ðŸ‘•'],
+  [1076, 180, 1264, 291, 'ACESSÃ“RIOS', 'ðŸŽ€'], [1270, 180, 1454, 291, 'PELE', 'ðŸ™‚'],
+  [1462, 180, 1622, 291, 'COR', 'ðŸŽ¨']
 ];
 const VOLTAR = [[50, 840, 323, 925], [92, 32, 204, 128]];
 const CONFIRMAR = [1308, 840, 1632, 925];
 
 // ===== Estado do personagem =====
-// Padrão: personagem careca com roupa básica (dá para tirar a roupa)
+// PadrÃ£o: personagem careca com roupa bÃ¡sica (dÃ¡ para tirar a roupa)
 const padraoG = () => ({ cabelo: null, corCabelo: null, acess: null, top: 1, bottom: 0, sapato: 0,
                          corTop: null, corBottom: null, rosto: 0 });
 let personagem = { aba: 0, genero: 0, pele: null, ...padraoG() };
@@ -37,6 +37,7 @@ async function salvarPersonagem() {
 // ===== Utilidades =====
 const telaInicial = document.getElementById('tela-inicial');
 const telaPers = document.getElementById('tela-personalizar');
+const telaRanking = document.getElementById('tela-ranking'); const telaConfig = document.getElementById('tela-config'); const telaFases = document.getElementById('tela-fases');
 const aviso = document.getElementById('aviso');
 
 function posicionar(el, [x1, y1, x2, y2]) {
@@ -49,8 +50,8 @@ function criarZona(pai, r, rotulo, aoClicar) {
   b.addEventListener('click', () => { bip(1040); aoClicar(b); });
   pai.appendChild(b); return b;
 }
-let audioCtx;
-function bip(freq = 880) {
+let audioCtx, ultimoSomUI = 0;
+function bip(freq = 880) { const agora = performance.now(); if (agora - ultimoSomUI < 110) return; ultimoSomUI = agora;
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
@@ -60,41 +61,71 @@ function bip(freq = 880) {
     o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + .12);
   } catch (e) {}
 }
-let timerAviso;
+document.addEventListener('pointerdown', e => { if (e.target.closest('button,.zona')) bip(760); }, true); document.addEventListener('pointerover', e => { if (e.target.closest('button,.zona')) bip(620); }, true); let timerAviso;
 function mostrarAviso(txt) {
   aviso.textContent = txt; aviso.classList.add('mostrar');
   clearTimeout(timerAviso); timerAviso = setTimeout(() => aviso.classList.remove('mostrar'), 1800);
 }
-let atual = 'inicial';
+// Movimento de entrada e flutuação das opções usando GSAP
+function animarEntradaTela(nome) {
+  if (!window.gsap) return;
+  gsap.killTweensOf(document.querySelectorAll('.config-opcao,.mapa-acoes button,#personagem,#painel'));
+  const tela = document.querySelector('.tela.ativa');
+  if (!tela) return;
+  const itens = tela.querySelectorAll('.zona,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
+  gsap.killTweensOf(itens);
+  if (itens.length) gsap.fromTo(itens, { y:16, scale:.97, opacity:0 }, { y:0, scale:1, opacity:1, duration:.5, stagger:.035, ease:'back.out(1.45)', clearProps:'opacity' });
+  if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  if (nome === 'config-musica') gsap.to(tela.querySelectorAll('[data-musica]'), { y:-8, duration:1.1, stagger:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  if (nome === 'mapa-fases') gsap.to(tela.querySelectorAll('.mapa-acoes button,.mapa-titulo'), { y:-6, duration:1.5, stagger:.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  if (nome === 'personalizar') gsap.to(tela.querySelectorAll('#personagem,.aba'), { y:-5, duration:2.4, stagger:.12, repeat:-1, yoyo:true, ease:'sine.inOut' });
+} let atual = 'inicial';
 function irPara(nome) {
   atual = nome;
   telaInicial.classList.toggle('ativa', nome === 'inicial');
   telaPers.classList.toggle('ativa', nome === 'personalizar');
+  telaRanking.classList.toggle('ativa', nome === 'ranking'); telaConfig.classList.toggle('ativa', nome === 'config-dificuldade' || nome === 'config-musica'); telaConfig.classList.toggle('escolha-musica', nome === 'config-musica'); telaFases.classList.toggle('ativa', nome === 'mapa-fases');
   document.getElementById('tela-jogo').classList.toggle('ativa', nome === 'jogo');
   if (nome === 'personalizar') desenhar();
-  if (nome === 'jogo') Corrida.iniciar(); else Corrida.parar();
+  if (nome === 'jogo') Corrida.iniciar(); else Corrida.parar(); animarEntradaTela(nome);
 }
 
 // ===== Tela inicial =====
 const botoesInicio = [
-  criarZona(telaInicial, INICIAL.jogar, 'Jogar', () => irPara('jogo')),
-  criarZona(telaInicial, INICIAL.ranking, 'Ranking', () => mostrarAviso('Ranking (tela ainda não criada)')),
+  criarZona(telaInicial, INICIAL.jogar, 'Jogar', () => irPara('config-dificuldade')),
+  criarZona(telaInicial, INICIAL.ranking, 'Ranking', () => { atualizarRanking(); irPara('ranking'); }),
   criarZona(telaInicial, INICIAL.personalizar, 'Personalizar personagem', () => irPara('personalizar'))
 ];
+const RANKING_KEY = 'jogoRanking';
+function lerRanking() { try { const r = JSON.parse(localStorage.getItem(RANKING_KEY) || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
+function registrarPontuacao(pontos) {
+  const nome = (window.prompt('Seu nome para o ranking:', 'Jogador') || '').trim().slice(0, 16);
+  if (!nome) return;
+  const r = lerRanking(); r.push({ nome, pontos: Math.max(0, Math.floor(pontos)), data: Date.now() });
+  r.sort((a, b) => b.pontos - a.pontos || a.data - b.data);
+  try { localStorage.setItem(RANKING_KEY, JSON.stringify(r.slice(0, 10))); } catch (e) {}
+}
+function atualizarRanking() {
+  const lista = document.getElementById('lista-ranking'); lista.replaceChildren();
+  const r = lerRanking();
+  if (!r.length) { const li = document.createElement('li'); li.className = 'ranking-vazio'; li.textContent = 'Ainda nÃ£o hÃ¡ pontuaÃ§Ãµes. Jogue uma partida!'; lista.append(li); return; }
+  r.forEach((item, i) => { const li = document.createElement('li'), n = document.createElement('span'), p = document.createElement('strong'); n.textContent = `${i + 1}. ${item.nome}`; p.textContent = `${Number(item.pontos).toLocaleString('pt-BR')} pts`; li.append(n, p); lista.append(li); });
+}
+document.getElementById('voltar-ranking').addEventListener('click', () => { bip(650); irPara('inicial'); });
 let idxInicio = 0;
 function marcarInicio() { botoesInicio.forEach((b, i) => b.classList.toggle('ativo', i === idxInicio)); }
-botoesInicio.forEach((b, i) => b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); }));
+botoesInicio.forEach((b, i) => b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); })); animarEntradaTela('inicial');
 
-// ===== Peças do personagem (manifesto + imagens) =====
+// ===== PeÃ§as do personagem (manifesto + imagens) =====
 let M = null, MS = [];              // manifesto atual e os dois (mulher/homem)
 const cacheImg = {}, cacheCor = {};
 function carregar(cat, i) {
   const k = base() + cat + '/' + i;
-  if (!cacheImg[k]) cacheImg[k] = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.src = k + '.png'; });
+  if (!cacheImg[k]) cacheImg[k] = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = k + '.png'; });
   return cacheImg[k];
 }
 
-// Recolore uma peça (cabelo/roupa: mantém luz e sombra; pele: só os pixels de pele)
+// Recolore uma peÃ§a (cabelo/roupa: mantÃ©m luz e sombra; pele: sÃ³ os pixels de pele)
 function recolorir(im, chave, alvo, modo) {
   const k = chave + '|' + alvo + '|' + modo;
   if (cacheCor[k]) return cacheCor[k];
@@ -126,7 +157,7 @@ function recolorir(im, chave, alvo, modo) {
 // ===== Desenho do personagem (camadas) =====
 const canvas = document.createElement('canvas');
 canvas.id = 'personagem'; canvas.width = 1040; canvas.height = 1310;
-const CX = 87, BT = 24;     // centro e topo do corpo (unidades lógicas); a escala se ajusta ao tamanho do personagem
+const CX = 87, BT = 24;     // centro e topo do corpo (unidades lÃ³gicas); a escala se ajusta ao tamanho do personagem
 let desenhando = false, refazer = false;
 async function desenhar() {
   if (!M) return;
@@ -140,7 +171,7 @@ async function desenhar() {
   const peca = (im, cat, i, cor, modo) => cor ? recolorir(im, s.genero + cat + i, cor, modo) : im;
   const pele = rgb(M.pele, s.pele);
   const bw = corpo.naturalWidth * C.esc, bh = corpo.naturalHeight * C.esc, pe = BT + bh + C.shoeD;
-  const R = 880 / (pe - (BT + C.topo));      // altura fixa na tela, para o personagem não ficar gigante
+  const R = 880 / (pe - (BT + C.topo));      // altura fixa na tela, para o personagem nÃ£o ficar gigante
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(R, 0, 0, R, 520 - CX * R, 1220 - pe * R); ctx.imageSmoothingQuality = 'high';
   const cam = (im, w, h, dx, t) => ctx.drawImage(im, CX + dx - w / 2, t, w, h);
@@ -186,7 +217,7 @@ function grade(chave, { cat, cores, n, colunas, nenhum }) {
     b.addEventListener('click', () => { bip(1040); personagem[chave] = valor; itens.forEach(([v, el]) => el.classList.toggle('on', v === valor)); desenhar(); });
     g.appendChild(b); itens.push([valor, b]);
   };
-  if (nenhum) add(null, document.createTextNode('🚫'), cores ? ' cor' : '');
+  if (nenhum) add(null, document.createTextNode('ðŸš«'), cores ? ' cor' : '');
   for (let i = 0; i < n; i++) {
     if (cores) { const [r, gg, b] = cores[i]; add(i, `rgb(${r},${gg},${b})`, ' cor'); }
     else { const im = new Image(); im.src = base() + cat + '/' + i + '.png'; im.loading = 'lazy'; add(i, im); }
@@ -198,7 +229,7 @@ function montarPainel() {
   abasEl.forEach((b, i) => b.classList.toggle('on', i === personagem.aba));
   painel.innerHTML = ''; painel.scrollTop = 0;
   const gb = document.createElement('div'); gb.className = 'generos';
-  [['👩 MULHER', 0], ['👨 HOMEM', 1]].forEach(([txt, g]) => {
+  [['ðŸ‘© MULHER', 0], ['ðŸ‘¨ HOMEM', 1]].forEach(([txt, g]) => {
     const b = document.createElement('button'); b.className = 'gen' + (personagem.genero === g ? ' on' : ''); b.textContent = txt;
     b.addEventListener('click', () => { if (personagem.genero === g) return; bip(900); personagem = { ...personagem, genero: g, ...padraoG() }; M = MS[g]; montarPainel(); desenhar(); });
     gb.appendChild(b);
@@ -208,19 +239,19 @@ function montarPainel() {
     case 0:
       secao('ESTILO DE CABELO'); grade('cabelo', { cat: 'cabelo', n: M.cabelo.length, colunas: 7, nenhum: true });
       secao('COR DO CABELO'); grade('corCabelo', { cores: M.corhair, n: M.corhair.length, colunas: 10, nenhum: true });
-      secao('ACESSÓRIOS DE CABELO'); grade('acess', { cat: 'acess', n: M.acess.length, colunas: 7, nenhum: true }); break;
+      secao('ACESSÃ“RIOS DE CABELO'); grade('acess', { cat: 'acess', n: M.acess.length, colunas: 7, nenhum: true }); break;
     case 1:
-      const tr = document.createElement('button'); tr.className = 'tirar'; tr.textContent = '🚫 TIRAR TODA A ROUPA';
+      const tr = document.createElement('button'); tr.className = 'tirar'; tr.textContent = 'ðŸš« TIRAR TODA A ROUPA';
       tr.addEventListener('click', () => { bip(500); Object.assign(personagem, { top: null, bottom: null, sapato: null }); montarPainel(); desenhar(); });
       painel.appendChild(tr);
       secao('PARTE DE CIMA'); grade('top', { cat: 'top', n: M.top.length, colunas: 7, nenhum: true });
       secao('PARTE DE BAIXO'); grade('bottom', { cat: 'bottom', n: M.bottom.length, colunas: 7, nenhum: true });
-      secao('CALÇADOS'); grade('sapato', { cat: 'calcado', n: M.calcado.length, colunas: 7, nenhum: true }); break;
+      secao('CALÃ‡ADOS'); grade('sapato', { cat: 'calcado', n: M.calcado.length, colunas: 7, nenhum: true }); break;
     case 2:
-      secao('ACESSÓRIOS'); grade('acess', { cat: 'acess', n: M.acess.length, colunas: 7, nenhum: true }); break;
+      secao('ACESSÃ“RIOS'); grade('acess', { cat: 'acess', n: M.acess.length, colunas: 7, nenhum: true }); break;
     case 3:
       secao('TOM DE PELE'); grade('pele', { cores: M.pele, n: M.pele.length, colunas: 10, nenhum: true });
-      secao('EXPRESSÃO'); grade('rosto', { cat: 'rosto', n: M.rosto.length, colunas: 6 }); break;
+      secao('EXPRESSÃƒO'); grade('rosto', { cat: 'rosto', n: M.rosto.length, colunas: 6 }); break;
     case 4:
       secao('COR DA PARTE DE CIMA'); grade('corTop', { cores: M.extra, n: M.extra.length, colunas: 10, nenhum: true });
       secao('COR DA PARTE DE BAIXO'); grade('corBottom', { cores: M.extra, n: M.extra.length, colunas: 10, nenhum: true }); break;
@@ -240,18 +271,47 @@ criarZona(telaPers, CONFIRMAR, 'Confirmar', async () => {
   await salvarPersonagem(); mostrarAviso('Personagem salvo!'); setTimeout(() => irPara('inicial'), 700);
 });
 
+// ===== Seleção de dificuldade e música =====
+let dificuldadeEscolhida = 'normal', musicaEscolhida = 0;
+const MAPAS_FASES = {
+  facil: { nome:'FÁCIL', arquivo:'mapa_facil (1).png' },
+  normal: { nome:'NORMAL', arquivo:'mapa_normal.png' },
+  dificil: { nome:'DIFÍCIL', arquivo:'mapa_dificil.png' }
+};
+function montarMapaFases() {
+  const mapa = MAPAS_FASES[dificuldadeEscolhida];
+  telaFases.style.backgroundImage = 'url("img/' + encodeURIComponent(mapa.arquivo) + '")';
+  telaFases.querySelector('.mapa-titulo').textContent = 'MAPA ' + mapa.nome;
+}
+document.querySelector('.mapa-voltar').addEventListener('click', () => { bip(650); irPara('config-dificuldade'); });
+document.querySelector('.mapa-iniciar').addEventListener('click', () => {
+  bip(1040); Corrida.configurar(dificuldadeEscolhida, musicaEscolhida); irPara('jogo');
+});
+document.querySelector('.mapa-musica').addEventListener('click', () => { bip(820); irPara('config-musica'); });
+document.querySelectorAll('[data-dificuldade]').forEach(botao => botao.addEventListener('click', () => {
+  dificuldadeEscolhida = botao.dataset.dificuldade;
+  telaConfig.querySelectorAll('[data-dificuldade]').forEach(b => b.classList.toggle('selecionada', b === botao));
+  bip(880); montarMapaFases(); irPara('mapa-fases');
+}));
+document.querySelectorAll('[data-musica]').forEach(botao => botao.addEventListener('click', () => {
+  musicaEscolhida = Number(botao.dataset.musica);
+  telaConfig.querySelectorAll('[data-musica]').forEach(b => b.classList.toggle('selecionada', b === botao));
+  bip(1040); Corrida.configurar(dificuldadeEscolhida, musicaEscolhida); irPara('jogo');
+}));
+document.querySelector('.config-voltar').addEventListener('click', () => { bip(650);
+  if (atual === 'config-musica') irPara('mapa-fases'); else irPara('inicial');
+});
+
 // ===== Teclado =====
 document.addEventListener('keydown', (e) => {
   if (atual === 'inicial') {
     if (e.key === 'ArrowDown') { idxInicio = (idxInicio + 1) % 3; marcarInicio(); bip(660); }
     else if (e.key === 'ArrowUp') { idxInicio = (idxInicio + 2) % 3; marcarInicio(); bip(660); }
     else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); botoesInicio[idxInicio].click(); }
-  } else if (atual === 'jogo') Corrida.tecla(e);
+  } else if (atual === 'jogo') Corrida.tecla(e); else if (e.key === 'Escape' && (atual.startsWith('config-') || atual === 'mapa-fases')) { if (atual === 'config-musica') irPara('mapa-fases'); else if (atual === 'mapa-fases') irPara('config-dificuldade'); else irPara('inicial'); }
   else if (e.key === 'Escape') irPara('inicial');
 });
 
-// ===== Início =====
-Promise.all([...BASES.map(b => fetch(b + 'manifest.json').then(r => r.json())), carregarPersonagem()]).then(([mf, mh, salvo]) => {
-  MS = [mf, mh]; if (salvo) Object.assign(personagem, salvo); M = MS[personagem.genero || 0];
-  montarPainel(); desenhar();
-});
+// ===== InÃ­cio =====
+// As peÃ§as em camadas foram substituÃ­das pela seleÃ§Ã£o de personagens completos.
+

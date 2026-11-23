@@ -21,6 +21,8 @@ Cabelo e roupas são recoloridos pelas cores escolhidas; a pele recolore corpo e
 Os ajustes de posição ficam no início da função `desenhar()` em `static/js/jogo.js`.
 
 ## Jogo (botão JOGAR)
+- Escolha uma dificuldade para ver seu mapa; use INICIAR para jogar no mapa padrão ou ESCOLHER MÚSICA para selecionar a trilha antes. Há botões VOLTAR nas telas de configuração.
+- As telas têm brilhos flutuantes; os mapas passeiam suavemente e os botões usam cores e brilho inspirados na arte do jogo.
 - Inimigos chegam da direita em duas pistas: chão e ar. A música e o mapa são gerados em código.
 - Chão: ↓, S, F, D ou Espaço (ou toque na metade de baixo). Ar: ↑, W, J ou K (ou toque na metade de cima).
 - P ou Esc pausa. A liga o modo automático (demonstração).

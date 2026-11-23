@@ -1,19 +1,65 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Jogo</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    #tela-ranking { display:grid; place-items:center; background:radial-gradient(ellipse at top,#54257e,#180b32 72%); }
+    .ranking-painel { width:64%; max-height:86%; padding:2.2% 4%; overflow:auto; border:.35vmin solid #d99cff; border-radius:2vmin; color:#fff; background:rgba(24,9,48,.9); box-shadow:0 0 4vmin #a13ee8; font-family:system-ui,sans-serif; }
+    .ranking-painel h1 { color:#ffe94a; text-align:center; font-size:clamp(26px,5vw,72px); text-shadow:0 4px #7a1052; }
+    .ranking-subtitulo { margin:0 0 1.3em; color:#d8bdff; text-align:center; font-size:clamp(12px,1.5vw,22px); }
+    #lista-ranking { list-style:none; }
+    #lista-ranking li { display:flex; justify-content:space-between; gap:1em; padding:.55em .8em; border-bottom:1px solid rgba(217,156,255,.28); font-size:clamp(14px,2vw,30px); }
+    #lista-ranking li:nth-child(-n+3) { color:#ffe94a; }
+    #lista-ranking .ranking-vazio { justify-content:center; color:#fff; text-align:center; }
+    #voltar-ranking { display:block; margin:1.3em auto 0; padding:.6em 2em; border:2px solid #fff; border-radius:999px; color:#fff; background:#a02a9a; cursor:pointer; font:800 clamp(14px,1.8vw,26px) system-ui,sans-serif; }
+    #voltar-ranking:hover { background:#d33bb4; }
+    #tela-personalizar { background-image:url("img/tela-personagens-1.png?v=20261123"); }
+    #tela-personalizar::after { content:none !important; display:none !important; }
+    .escolha-personagem { position:absolute; border:.5vmin solid transparent; border-radius:3%; background:transparent; cursor:pointer; transition:background .15s,border-color .15s,box-shadow .15s; }
+    .escolha-personagem:hover,.escolha-personagem.selecionado { border-color:#ff3f9f; background:rgba(255,71,161,.14); box-shadow:0 0 2vmin #ff2f91,inset 0 0 2vmin rgba(255,47,145,.2); }
+    .confirmar-personagem { position:absolute; left:35%; top:85.7%; width:30%; height:12%; border:0; border-radius:999px; background:transparent; cursor:pointer; }
+    .confirmar-personagem:hover,.confirmar-personagem:focus-visible { outline:.4vmin solid white; box-shadow:0 0 2vmin #ff2f91; }
+      #tela-config { background-image:url("img/Menu%20de%20Doces_%20Dificuldade%20e%20M%C3%BAsica.png"); background-size:100% 200%; background-position:center top; }
+    #tela-config.escolha-musica { background-position:center bottom; } #tela-config:not(.escolha-musica) [data-musica] { display:none; } #tela-config.escolha-musica [data-dificuldade] { display:none; }
+    .config-opcao { position:absolute; border:.45vmin solid transparent; border-radius:4%; background:transparent; cursor:pointer; transition:background .16s,border-color .16s,box-shadow .16s,transform .16s; }
+    .config-opcao:hover,.config-opcao:focus-visible,.config-opcao.selecionada { outline:none; border-color:#ff398c; background:rgba(255,67,145,.16); box-shadow:0 0 2vmin #ff2585,inset 0 0 1.2vmin rgba(255,255,255,.55); transform:scale(1.025); }
+    .config-voltar { position:absolute; left:4%; top:85%; width:12%; height:14%; border:0; border-radius:999px; background:transparent; cursor:pointer; }
+    .config-voltar:hover,.config-voltar:focus-visible { outline:.4vmin solid #fff; box-shadow:0 0 2vmin #ff2585; }.bolo-facil{left:19%;top:24%;width:21%;height:55%}.bolo-normal{left:40%;top:24%;width:21%;height:55%}.bolo-dificil{left:62%;top:24%;width:21%;height:55%}.disco-journey{left:19%;top:30%;width:21%;height:55%}.disco-dream{left:40%;top:30%;width:21%;height:55%}.disco-town{left:62%;top:30%;width:21%;height:55%}    #tela-fases { background-size:100% 100%; background-position:center; background-color:#f9b4d0; }
+    .mapa-titulo { position:absolute; left:27%; top:3%; width:46%; padding:.65% 1%; border:.4vmin solid #df4c86; border-radius:999px; background:rgba(255,239,247,.92); color:#9f244f; text-align:center; font:900 clamp(18px,3.2vw,48px) system-ui,sans-serif; text-shadow:0 2px #fff; box-shadow:0 0 1.5vmin #ef83ae; }
+    .mapa-voltar { position:absolute; left:2%; top:2%; width:12%; height:11%; border:0; border-radius:999px; background:rgba(255,255,255,.08); cursor:pointer; }
+    .mapa-voltar:hover,.mapa-voltar:focus-visible { outline:.45vmin solid #fff; box-shadow:0 0 2vmin #ef3982; }
+  </style>
 </head>
 <body>
   <main id="palco">
     <section class="tela ativa" id="tela-inicial" aria-label="Tela inicial"></section>
     <section class="tela" id="tela-personalizar" aria-label="Personalizar personagem"></section>
-    <section class="tela" id="tela-jogo" aria-label="Jogo"><canvas id="cv-jogo" width="1672" height="941"></canvas></section>
+    <section class="tela" id="tela-ranking" aria-label="Ranking"><div class="ranking-painel"><h1>RANKING</h1><p class="ranking-subtitulo">Melhores pontuaÃ§Ãµes deste navegador</p><ol id="lista-ranking"></ol><button id="voltar-ranking" type="button">VOLTAR</button></div></section>
+    <section class="tela" id="tela-fases" aria-label="Mapa de fases">
+      <button type="button" class="mapa-voltar">← VOLTAR</button>
+      <div class="mapa-titulo"></div>
+      <div class="mapa-acoes">
+        <button type="button" class="mapa-iniciar">INICIAR</button>
+        <button type="button" class="mapa-musica">ESCOLHER MÚSICA</button>
+      </div>
+    </section>    <section class="tela" id="tela-config" aria-label="Escolher dificuldade e música">
+      <button class="config-opcao bolo-facil" data-dificuldade="facil" aria-label="Dificuldade fácil"></button>
+      <button class="config-opcao bolo-normal" data-dificuldade="normal" aria-label="Dificuldade normal"></button>
+      <button class="config-opcao bolo-dificil" data-dificuldade="dificil" aria-label="Dificuldade difícil"></button>
+      <button class="config-opcao disco-journey" data-musica="0" aria-label="Sweet Journey"></button>
+      <button class="config-opcao disco-dream" data-musica="1" aria-label="Candy Dream"></button>
+      <button class="config-opcao disco-town" data-musica="2" aria-label="Strawberry Town"></button>
+      <button class="config-voltar" type="button">← VOLTAR</button>
+    </section>    <section class="tela" id="tela-jogo" aria-label="Jogo"><canvas id="cv-jogo" width="1672" height="941"></canvas></section>
     <div id="aviso" role="status"></div>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
   <script src="js/jogo.js"></script>
+  <script src="js/personagens.js"></script>
   <script src="js/corrida.js"></script>
 </body>
 </html>
+

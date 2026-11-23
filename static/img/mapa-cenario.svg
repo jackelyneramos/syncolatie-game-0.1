@@ -1,0 +1,46 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ffe8f4"/><stop offset=".55" stop-color="#ffb9d8"/><stop offset="1" stop-color="#ee79ad"/></linearGradient>
+ <linearGradient id="window" x2="0" y2="1"><stop stop-color="#ffeff8"/><stop offset="1" stop-color="#f7a8ce"/></linearGradient>
+ <linearGradient id="cream" x2="0" y2="1"><stop stop-color="#fffdf7"/><stop offset="1" stop-color="#ffd9e8"/></linearGradient>
+ <linearGradient id="floor" x2="0" y2="1"><stop stop-color="#df6497"/><stop offset=".12" stop-color="#c34278"/><stop offset=".2" stop-color="#873853"/><stop offset="1" stop-color="#57283f"/></linearGradient>
+ <pattern id="gingham" width="72" height="72" patternUnits="userSpaceOnUse"><rect width="72" height="72" fill="#fff0f7"/><path d="M0 0h36v36H0zM36 36h36v36H36z" fill="#f9c0d9"/><path d="M36 0h36v36H36zM0 36h36v36H0z" fill="#ffe0ed"/></pattern>
+ <pattern id="tiles" width="120" height="58" patternUnits="userSpaceOnUse"><rect width="120" height="58" fill="#f9b1d0"/><path d="M0 0h60v29H0zM60 29h60v29H60z" fill="#f28bb8"/><path d="M60 0h60v29H60zM0 29h60v29H0z" fill="#ffd3e5" opacity=".82"/></pattern>
+ <g id="berry"><path d="M0 9C-19-4-24 7-17 15C-12 22-4 28 0 31C5 26 14 18 18 11C24 1 14-5 5 1Z" fill="#e83d67" stroke="#a51e4c" stroke-width="3"/><path d="M0 5Q-2-4 2-11M0 3Q-9-6-14-4M2 3Q10-7 15-6M1 2Q0-7 6-10" fill="#58a64c" stroke="#3b813e" stroke-width="3" stroke-linecap="round"/><g fill="#ffe5a3"><circle cx="-10" cy="11" r="1.5"/><circle cx="1" cy="15" r="1.5"/><circle cx="10" cy="8" r="1.5"/><circle cx="-5" cy="22" r="1.5"/><circle cx="6" cy="23" r="1.5"/></g></g>
+ <g id="spark" fill="none" stroke="#fff9fc" stroke-width="5" stroke-linecap="round"><path d="M0-15Q2-2 14 0Q2 2 0 15Q-2 2-14 0Q-2-2 0-15Z"/></g>
+</defs>
+<rect width="1672" height="941" fill="url(#sky)"/>
+<rect y="56" width="1672" height="540" fill="url(#gingham)" opacity=".44"/>
+<!-- distant candy shop arches -->
+<g fill="url(#window)" stroke="#ed79a9" stroke-width="18">
+ <path d="M80 596V276Q80 106 250 106Q420 106 420 276V596Z"/>
+ <path d="M474 596V227Q474 65 636 65Q798 65 798 227V596Z"/>
+ <path d="M874 596V227Q874 65 1036 65Q1198 65 1198 227V596Z"/>
+ <path d="M1250 596V276Q1250 106 1420 106Q1590 106 1590 276V596Z"/>
+</g>
+<g fill="none" stroke="#fff2f8" stroke-width="10" opacity=".9">
+ <path d="M122 568V284Q122 148 250 148Q378 148 378 284V568"/>
+ <path d="M516 568V236Q516 107 636 107Q756 107 756 236V568"/>
+ <path d="M916 568V236Q916 107 1036 107Q1156 107 1156 236V568"/>
+ <path d="M1292 568V284Q1292 148 1420 148Q1548 148 1548 284V568"/>
+</g>
+<!-- fluffy whipped-cream clouds -->
+<g fill="url(#cream)" stroke="#f59ac0" stroke-width="8">
+ <path d="M0 178Q34 131 76 164Q87 107 139 129Q167 76 214 118Q257 83 288 135Q348 112 362 167Q409 170 418 215H0Z"/>
+ <path d="M1291 179Q1324 128 1370 157Q1387 99 1438 125Q1471 73 1516 117Q1557 82 1592 133Q1640 112 1672 159V220H1291Z"/>
+</g>
+<!-- candy frosting balcony -->
+<path d="M0 553Q90 534 168 554T334 551T500 557T666 550T832 554T998 550T1164 556T1330 550T1496 555T1672 548V621H0Z" fill="#fff0f7" stroke="#ed80ac" stroke-width="13"/>
+<path d="M0 580Q58 563 92 582Q121 606 107 651Q96 683 73 661Q55 644 70 620Q35 626 0 615ZM318 578Q362 559 394 581Q424 607 405 647Q391 674 370 654Q352 637 370 616Q340 621 318 608ZM708 579Q752 559 784 582Q814 608 795 648Q781 674 760 654Q742 637 760 616Q730 622 708 608ZM1100 580Q1144 560 1176 582Q1206 609 1187 648Q1173 675 1152 654Q1134 637 1152 616Q1122 622 1100 608ZM1490 578Q1534 560 1566 582Q1596 609 1577 648Q1563 675 1542 654Q1524 637 1542 616Q1512 622 1490 608Z" fill="#fff8fb" stroke="#ed80ac" stroke-width="8"/>
+<!-- small berries and sparkles -->
+<use href="#berry" transform="translate(206 485) scale(1.35)"/><use href="#berry" transform="translate(548 501) scale(.95)"/><use href="#berry" transform="translate(1107 491) scale(1.2)"/><use href="#berry" transform="translate(1454 483) scale(1.35)"/>
+<use href="#spark" transform="translate(463 270) scale(1.1)"/><use href="#spark" transform="translate(1215 354) scale(.8)"/><use href="#spark" transform="translate(810 425) scale(.7)"/>
+<g fill="#fffafc" opacity=".9"><circle cx="575" cy="349" r="8"/><circle cx="1090" cy="285" r="7"/><circle cx="276" cy="379" r="6"/><circle cx="1383" cy="392" r="8"/><circle cx="824" cy="190" r="6"/></g>
+<!-- playable floor aligned to game character baseline -->
+<rect y="610" width="1672" height="331" fill="url(#floor)"/>
+<rect y="610" width="1672" height="58" fill="url(#tiles)"/>
+<path d="M0 612H1672" stroke="#fff3fa" stroke-width="12"/><path d="M0 669H1672" stroke="#8e3458" stroke-width="12" opacity=".7"/>
+<path d="M0 704Q120 679 240 704T480 704T720 704T960 704T1200 704T1440 704T1680 704" fill="none" stroke="#ffb2d0" stroke-width="8" opacity=".28"/>
+<g fill="#f78bb4" opacity=".25"><circle cx="120" cy="792" r="34"/><circle cx="360" cy="856" r="28"/><circle cx="610" cy="785" r="38"/><circle cx="880" cy="862" r="32"/><circle cx="1140" cy="790" r="34"/><circle cx="1400" cy="858" r="30"/><circle cx="1600" cy="784" r="36"/></g>
+<rect y="610" width="1672" height="331" fill="url(#sky)" opacity=".04"/>
+</svg>
