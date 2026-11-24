@@ -143,6 +143,12 @@ function iniciarEfeitosInicial() {
   } catch (e) { /* Mantem a tela funcional quando WebGL nao estiver disponivel. */ }
 }
 iniciarEfeitosInicial();
+const videoCenario = document.getElementById('video-cenario');
+if (videoCenario) {
+  const desacelerarCenario = () => { try { videoCenario.playbackRate = 0.65; } catch (e) {} };
+  videoCenario.addEventListener('loadedmetadata', desacelerarCenario, { once:true });
+  desacelerarCenario();
+}
 
 function irPara(nome) {
   atual = nome;
