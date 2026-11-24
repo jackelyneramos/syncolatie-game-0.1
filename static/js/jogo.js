@@ -47,7 +47,15 @@ function posicionar(el, [x1, y1, x2, y2]) {
 function criarZona(pai, r, rotulo, aoClicar) {
   const b = document.createElement('button');
   b.className = 'zona'; b.setAttribute('aria-label', rotulo); posicionar(b, r);
-  b.addEventListener('click', () => { bip(1040); aoClicar(b); });
+  b.addEventListener('click', (e) => {
+    bip(1040);
+    const imagem = b.dataset.botao && document.querySelector(`[data-botao="${b.dataset.botao}"]`);
+    if (!imagem) { aoClicar(b); return; }
+    const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (window.gsap && !reduzido) gsap.timeline().to(imagem, { scale:.93, duration:.09, ease:'power2.out' }).to(imagem, { scale:1, duration:.2, ease:'back.out(2)' });
+    if (window.dispararEfeitoClique && e.detail) window.dispararEfeitoClique(e.clientX, e.clientY);
+    setTimeout(() => aoClicar(b), 140);
+  });
   pai.appendChild(b); return b;
 }
 let audioCtx, ultimoSomUI = 0;
@@ -72,7 +80,7 @@ function animarEntradaTela(nome) {
   gsap.killTweensOf(document.querySelectorAll('.tela,.config-opcao,.mapa-acoes button,.mapa-titulo,.mapa-voltar,#personagem,#painel'));
   const tela = document.querySelector('.tela.ativa');
   if (!tela) return;
-  const itens = tela.querySelectorAll('.zona,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
+  const itens = tela.querySelectorAll('.zona,.botao-inicial,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
   gsap.killTweensOf(itens);
   if (itens.length) gsap.fromTo(itens, { y:16, scale:.97, opacity:0 }, { y:0, scale:1, opacity:1, duration:.5, stagger:.035, ease:'back.out(1.45)', clearProps:'opacity' });
   if (nome === 'config-dificuldade' || nome === 'config-musica') { const baixo = nome === 'config-musica'; gsap.fromTo(tela, { backgroundSize:'100% 200%', backgroundPosition:baixo ? 'center bottom' : 'center top' }, { backgroundSize:'102% 204%', backgroundPosition:baixo ? 'center bottom' : 'center top', duration:14, repeat:-1, yoyo:true, ease:'sine.inOut' }); } if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
@@ -80,6 +88,62 @@ function animarEntradaTela(nome) {
   if (nome === 'mapa-fases') gsap.fromTo(tela, { backgroundPosition:'48% 52%', backgroundSize:'106% 106%' }, { backgroundPosition:'52% 48%', backgroundSize:'110% 110%', duration:16, repeat:-1, yoyo:true, ease:'sine.inOut' }); if (nome === 'mapa-fases') gsap.to(tela.querySelectorAll('.mapa-acoes button,.mapa-titulo'), { y:-6, duration:1.5, stagger:.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
   if (nome === 'personalizar') gsap.to(tela.querySelectorAll('#personagem,.aba'), { y:-5, duration:2.4, stagger:.12, repeat:-1, yoyo:true, ease:'sine.inOut' });
 } let atual = 'inicial';
+
+// Logo animado com GSAP e particulas 3D decorativas com Three.js.
+function iniciarEfeitosInicial() {
+  const logo = document.getElementById('logo-bolo');
+  const movimentoReduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (window.gsap && logo && !movimentoReduzido) {
+    gsap.fromTo(logo, { y:24, scale:.88, opacity:0 }, { y:0, scale:1, opacity:1, duration:1.05, delay:.12, ease:'back.out(1.5)' });
+    gsap.to(logo, { y:-5, rotation:.25, duration:2.6, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.2 });
+  }
+  const canvas = document.getElementById('efeitos-inicial');
+  if (!canvas || !window.THREE || movimentoReduzido) return;
+  try {
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, 1672 / 941, .1, 100); camera.position.z = 18;
+    const colors = [0xff75ad, 0xffd66e, 0xffffff, 0xb77cff];
+    const candy = new THREE.Group(); scene.add(candy);
+    for (let i=0; i<24; i++) {
+      const geo = i%3 === 0 ? new THREE.SphereGeometry(.11 + Math.random()*.08, 10, 8) : new THREE.CapsuleGeometry(.055, .12, 3, 6);
+      const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:colors[i%colors.length], transparent:true, opacity:.65 }));
+      mesh.position.set((Math.random()-.5)*21, (Math.random()-.5)*11, (Math.random()-.5)*4);
+      mesh.userData.phase = Math.random()*Math.PI*2; mesh.userData.y = mesh.position.y; candy.add(mesh);
+    }
+    function resize() { const rect=canvas.getBoundingClientRect(); renderer.setSize(rect.width, rect.height, false); camera.aspect=rect.width/rect.height; camera.updateProjectionMatrix(); }
+    resize(); window.addEventListener('resize', resize);
+    const clock3d = new THREE.Clock();
+    window.dispararEfeitoClique = (px, py) => {
+      const rect = canvas.getBoundingClientRect();
+      const distancia = camera.position.z - 2;
+      const altura = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * distancia;
+      const origem = new THREE.Vector3((px / rect.width - .5) * altura * camera.aspect, (.5 - py / rect.height) * altura, 2);
+      const anel = new THREE.Mesh(new THREE.TorusGeometry(.12, .035, 6, 24), new THREE.MeshBasicMaterial({ color:0xff4d9a, transparent:true, opacity:.95, depthWrite:false }));
+      anel.position.copy(origem); scene.add(anel);
+      const limpar = () => { scene.remove(anel); anel.geometry.dispose(); anel.material.dispose(); };
+      if (window.gsap) {
+        gsap.to(anel.scale, { x:3, y:3, z:3, duration:.42, ease:'back.out(1.6)' });
+        gsap.to(anel.material, { opacity:0, duration:.4, onComplete:limpar });
+      } else setTimeout(limpar, 450);
+      for (let i=0; i<8; i++) {
+        const particula = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), new THREE.MeshBasicMaterial({ color:colors[i%colors.length], transparent:true, opacity:.95, depthWrite:false }));
+        particula.position.copy(origem); scene.add(particula);
+        const angulo = Math.PI * 2 * i / 8, alcance = .55 + Math.random() * .35;
+        const fim = { x:origem.x + Math.cos(angulo)*alcance, y:origem.y + Math.sin(angulo)*alcance };
+        const remover = () => { scene.remove(particula); particula.geometry.dispose(); particula.material.dispose(); };
+        if (window.gsap) gsap.to(particula.position, { ...fim, duration:.42, ease:'power2.out' });
+        if (window.gsap) gsap.to(particula.material, { opacity:0, duration:.42, onComplete:remover });
+        else setTimeout(remover, 450);
+      }
+    };
+    function frame() { if (!canvas.isConnected) return; if (telaInicial.classList.contains('ativa')) { const t=clock3d.getElapsedTime(); candy.children.forEach((m,i)=>{m.position.y=m.userData.y+Math.sin(t*.7+m.userData.phase)*.16; m.rotation.z += .001+(i%4)*.0004;}); renderer.render(scene,camera); } requestAnimationFrame(frame); }
+    frame();
+  } catch (e) { /* Mantem a tela funcional quando WebGL nao estiver disponivel. */ }
+}
+iniciarEfeitosInicial();
+
 function irPara(nome) {
   atual = nome;
   telaInicial.classList.toggle('ativa', nome === 'inicial');
@@ -96,6 +160,7 @@ const botoesInicio = [
   criarZona(telaInicial, INICIAL.ranking, 'Ranking', () => { atualizarRanking(); irPara('ranking'); }),
   criarZona(telaInicial, INICIAL.personalizar, 'Personalizar personagem', () => irPara('personalizar'))
 ];
+botoesInicio.forEach((botao, i) => { botao.dataset.botao = ['jogar', 'ranking', 'personalizar'][i]; });
 const RANKING_KEY = 'jogoRanking';
 function lerRanking() { try { const r = JSON.parse(localStorage.getItem(RANKING_KEY) || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
 function registrarPontuacao(pontos) {
@@ -114,7 +179,18 @@ function atualizarRanking() {
 document.getElementById('voltar-ranking').addEventListener('click', () => { bip(650); irPara('inicial'); });
 let idxInicio = 0;
 function marcarInicio() { botoesInicio.forEach((b, i) => b.classList.toggle('ativo', i === idxInicio)); }
-botoesInicio.forEach((b, i) => b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); })); animarEntradaTela('inicial');
+botoesInicio.forEach((b, i) => {
+  const animarHover = ativo => {
+    const imagem = document.querySelector(`[data-botao="${['jogar', 'ranking', 'personalizar'][i]}"]`);
+    if (!window.gsap || !imagem || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.to(imagem, { scale:ativo ? 1.045 : 1, filter:ativo ? 'brightness(1.08)' : 'brightness(1)', duration:ativo ? .24 : .18, ease:ativo ? 'back.out(2)' : 'power2.out', overwrite:'auto' });
+  };
+  b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); animarHover(true); });
+  b.addEventListener('mouseleave', () => animarHover(false));
+  b.addEventListener('focus', () => animarHover(true));
+  b.addEventListener('blur', () => animarHover(false));
+});
+animarEntradaTela('inicial');
 
 // ===== PeÃ§as do personagem (manifesto + imagens) =====
 let M = null, MS = [];              // manifesto atual e os dois (mulher/homem)
