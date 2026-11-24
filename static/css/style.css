@@ -46,10 +46,10 @@ body { display: flex; align-items: center; justify-content: center; }
 #fachada-inicial { position:absolute; inset:0; z-index:2; width:100%; height:100%; object-fit:fill; pointer-events:none; }
 #logo-bolo { position:absolute; z-index:4; left:20%; top:1.5%; width:60%; height:42%; object-fit:contain; pointer-events:none; filter:drop-shadow(0 .45vmin .7vmin rgba(118,35,54,.25)); transform-origin:50% 60%; }
 #efeitos-inicial { position:absolute; inset:0; z-index:3; width:100%; height:100%; pointer-events:none; }
-.botao-inicial { position:absolute; z-index:4; width:32.18%; height:auto; object-fit:contain; pointer-events:none; transform:translateY(-50%); transform-origin:50% 50%; filter:drop-shadow(0 .22vmin .25vmin rgba(110,28,54,.18)); }
-.botao-inicial[data-botao="jogar"] { left:34.21%; top:52.71%; }
-.botao-inicial[data-botao="ranking"] { left:34.21%; top:65.51%; }
-.botao-inicial[data-botao="personalizar"] { left:34.21%; top:78%; }
+.botao-inicial { position:absolute; z-index:4; width:24%; height:auto; object-fit:contain; pointer-events:none; transform-origin:50% 50%; filter:drop-shadow(0 .22vmin .25vmin rgba(110,28,54,.18)); }
+.botao-inicial[data-botao="jogar"] { left:38%; top:47%; }
+.botao-inicial[data-botao="ranking"] { left:38%; top:59%; }
+.botao-inicial[data-botao="personalizar"] { left:38%; top:68.5%; }
 #tela-inicial .zona { z-index:5; }
 #tela-inicial .zona:hover, #tela-inicial .zona:focus-visible, #tela-inicial .zona.ativo { outline:none; transform:none; background:transparent; box-shadow:none; }
 #tela-inicial .zona::after { content:none; }
@@ -287,19 +287,40 @@ body { display: flex; align-items: center; justify-content: center; }
 .tirar:hover { background: #ffe1e9; border-color: #e7558d; }
 /* Ajustes da arte nova: remove o avatar impresso e deixa sï¿½ o personagem interativo. */
 #personagem { z-index: 2; }
-#tela-personalizar::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  left: 7%;
-  top: 30%;
-  width: 28%;
-  height: 53%;
-  pointer-events: none;
-  border-radius: 48%;
-  background: radial-gradient(ellipse, rgba(255,225,237,.98) 0%, rgba(255,218,232,.96) 68%, rgba(255,218,232,0) 100%);
-}
 .plataforma { display: none; }
 #painel, .aba { z-index: 3; }
 .zona { z-index: 4; }
 
+
+
+/* Selecao de personagem em carrossel de artes completas */
+#tela-personalizar.ativa { background-image:none !important; background-color:#24112d; background-size:100% 100%; animation:none; }
+#tela-personalizar::before, #tela-personalizar::after { content:none !important; display:none !important; }
+#tela-personalizar .arte-personagem { position:absolute; inset:0; z-index:3; display:block; width:100%; height:100%; object-fit:cover; object-position:center; pointer-events:none; user-select:none; will-change:transform,opacity,filter; }
+#tela-personalizar .arte-oculta { opacity:0; }
+#tela-personalizar .arte-visivel { opacity:1; }
+#tela-personalizar .voltar-carrossel, #tela-personalizar .seta-carrossel, #tela-personalizar .rodape-personagem { position:absolute; z-index:6; }
+#tela-personalizar .voltar-carrossel { top:3.5%; left:3.5%; width:clamp(130px,17%,280px); padding:0; border:0; background:transparent; cursor:pointer; }
+#tela-personalizar .voltar-carrossel img { display:block; width:100%; height:auto; transform-origin:center; filter:drop-shadow(0 .35vmin .55vmin rgba(49,12,35,.3)); }
+#tela-personalizar .seta-carrossel { top:48%; display:grid; place-items:center; width:clamp(56px,6vw,96px); height:clamp(56px,6vw,96px); border:3px solid #fff5ec; border-radius:50%; color:#9e3158; background:linear-gradient(145deg,#fff8ed,#ffb9d2 68%,#ed6d9d); box-shadow:0 .55vmin 0 #a33f66,0 .8vmin 1.8vmin rgba(43,10,34,.38),inset 0 .35vmin .6vmin #fff; cursor:pointer; transform:translateY(-50%); transition:filter .2s,box-shadow .2s; }
+#tela-personalizar .seta-anterior { left:2.4%; }
+#tela-personalizar .seta-proxima { right:2.4%; }
+#tela-personalizar .seta-glyph { font:900 clamp(35px,4vw,64px)/.8 system-ui,sans-serif; text-shadow:0 2px #fff; }
+#tela-personalizar .seta-bolo { position:absolute; top:-18%; right:-7%; display:grid; place-items:center; width:38%; aspect-ratio:1; border:2px solid #fff; border-radius:50%; background:#f45d9c; box-shadow:0 2px 5px rgba(63,14,48,.3); font-size:clamp(13px,1.5vw,23px); }
+#tela-personalizar .seta-carrossel:hover { filter:brightness(1.12); box-shadow:0 .35vmin 0 #a33f66,0 1vmin 2vmin rgba(43,10,34,.45),inset 0 .35vmin .6vmin #fff; }
+#tela-personalizar .rodape-personagem { inset:auto 0 0; min-height:20%; display:flex; align-items:center; justify-content:space-between; gap:3%; padding:1.8% 5%; border-top:2px solid rgba(255,255,255,.72); background:linear-gradient(100deg,var(--cor-personagem,rgba(91,48,111,.76)),rgba(255,242,250,.62)); backdrop-filter:blur(16px) saturate(1.25); -webkit-backdrop-filter:blur(16px) saturate(1.25); color:#fff; box-shadow:0 -1vmin 3vmin rgba(45,16,48,.18); }
+#tela-personalizar .info-personagem { max-width:68%; text-shadow:0 2px 5px rgba(30,9,35,.55); }
+#tela-personalizar .posicao-personagem { display:block; margin-bottom:.35em; color:#fff0c9; font:800 clamp(10px,1vw,15px) system-ui,sans-serif; letter-spacing:.15em; }
+#tela-personalizar .nome-personagem { margin:0 0 .15em; font:900 clamp(22px,3vw,44px)/1.05 system-ui,sans-serif; }
+#tela-personalizar .descricao-personagem { font:600 clamp(12px,1.45vw,21px)/1.35 system-ui,sans-serif; }
+#tela-personalizar .selecionar-personagem { flex:none; width:clamp(190px,28%,440px); padding:0; border:0; background:transparent; cursor:pointer; }
+#tela-personalizar .selecionar-personagem img { display:block; width:100%; height:auto; transform-origin:center; filter:drop-shadow(0 .4vmin .6vmin rgba(49,12,35,.3)); }
+@media (max-width:600px) { #tela-personalizar .rodape-personagem { min-height:24%; padding:2.5% 4%; } #tela-personalizar .info-personagem { max-width:55%; } #tela-personalizar .selecionar-personagem { width:clamp(150px,39%,230px); } #tela-personalizar .voltar-carrossel { top:2%; left:2%; } }
+
+
+/* Cortinas de transicao azul, rosa e amarelo entre telas */
+#transicao-cinema { position:absolute; inset:0; z-index:50; overflow:hidden; visibility:hidden; pointer-events:none; }
+.cortina-cinema { position:absolute; top:0; width:50%; height:100%; will-change:transform; box-shadow:0 0 3vmin rgba(52,13,44,.32); }
+.cortina-esquerda { left:0; border-right:.45vmin solid rgba(255,255,255,.92); background:linear-gradient(90deg,#6bbdf5 0 32%,#ff80b6 32% 67%,#ffe16b 67% 100%); }
+.cortina-direita { right:0; border-left:.45vmin solid rgba(255,255,255,.92); background:linear-gradient(90deg,#ffe16b 0 33%,#ff80b6 33% 68%,#6bbdf5 68% 100%); }
+.cortina-cinema::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,.3),transparent 18% 82%,rgba(122,42,87,.18)); pointer-events:none; }

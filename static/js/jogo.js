@@ -4,9 +4,9 @@ const BASES = ['img/partes/', 'img/partes-m/'];   // 0 = mulher, 1 = homem
 const base = () => BASES[personagem.genero || 0];
 
 const INICIAL = {
-  jogar:        [572, 442, 1110, 550],
-  ranking:      [572, 565, 1110, 668],
-  personalizar: [572, 680, 1110, 788]
+  jogar:        [572, 443, 1110, 575],
+  ranking:      [572, 567, 1110, 677],
+  personalizar: [572, 665, 1110, 731]
 };
 const ABAS = [  // [x1, y1, x2, y2, rÃ³tulo, Ã­cone]
   [701, 176, 886, 300, 'CABELO', 'ðŸ’‡'], [890, 180, 1067, 291, 'ROUPA', 'ðŸ‘•'],
@@ -150,7 +150,7 @@ if (videoCenario) {
   desacelerarCenario();
 }
 
-function irPara(nome) {
+function aplicarTela(nome) {
   atual = nome;
   telaInicial.classList.toggle('ativa', nome === 'inicial');
   telaPers.classList.toggle('ativa', nome === 'personalizar');
@@ -158,6 +158,36 @@ function irPara(nome) {
   document.getElementById('tela-jogo').classList.toggle('ativa', nome === 'jogo');
   if (nome === 'personalizar') desenhar();
   if (nome === 'jogo') Corrida.iniciar(); else Corrida.parar(); animarEntradaTela(nome);
+}
+const cortinaCinema = document.createElement('div');
+cortinaCinema.id = 'transicao-cinema'; cortinaCinema.setAttribute('aria-hidden', 'true');
+cortinaCinema.innerHTML = '<div class="cortina-cinema cortina-esquerda"></div><div class="cortina-cinema cortina-direita"></div>';
+document.getElementById('palco').appendChild(cortinaCinema);
+const cortinaEsquerda = cortinaCinema.querySelector('.cortina-esquerda');
+const cortinaDireita = cortinaCinema.querySelector('.cortina-direita');
+let transicaoCinemaAtiva = false, proximaTelaPendente = null;
+function irPara(nome) {
+  if (transicaoCinemaAtiva) { proximaTelaPendente = nome; return; }
+  if (nome === atual) return;
+  const movimentoReduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!window.gsap || movimentoReduzido) { aplicarTela(nome); return; }
+  transicaoCinemaAtiva = true;
+  cortinaCinema.style.pointerEvents = 'auto';
+  gsap.set(cortinaCinema, { autoAlpha:1 });
+  gsap.set(cortinaEsquerda, { xPercent:-100 });
+  gsap.set(cortinaDireita, { xPercent:100 });
+  gsap.timeline({ onComplete:() => {
+    gsap.set(cortinaCinema, { autoAlpha:0 });
+    cortinaCinema.style.pointerEvents = 'none';
+    transicaoCinemaAtiva = false;
+    if (proximaTelaPendente) { const destino = proximaTelaPendente; proximaTelaPendente = null; irPara(destino); }
+  }})
+    .to(cortinaEsquerda, { xPercent:1, duration:.48, ease:'power4.in' })
+    .to(cortinaDireita, { xPercent:-1, duration:.48, ease:'power4.in' }, '<')
+    .call(() => aplicarTela(nome))
+    .to({}, { duration:.08 })
+    .to(cortinaEsquerda, { xPercent:-100, duration:.56, ease:'power3.inOut' }, 'abrir')
+    .to(cortinaDireita, { xPercent:100, duration:.56, ease:'power3.inOut' }, 'abrir');
 }
 
 // ===== Tela inicial =====
@@ -189,7 +219,7 @@ botoesInicio.forEach((b, i) => {
   const animarHover = ativo => {
     const imagem = document.querySelector(`[data-botao="${['jogar', 'ranking', 'personalizar'][i]}"]`);
     if (!window.gsap || !imagem || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.to(imagem, { scale:ativo ? 1.045 : 1, filter:ativo ? 'brightness(1.08)' : 'brightness(1)', duration:ativo ? .24 : .18, ease:ativo ? 'back.out(2)' : 'power2.out', overwrite:'auto' });
+    gsap.to(imagem, { scale:ativo ? 1.075 : 1, y:ativo ? -6 : 0, rotation:ativo ? (i === 1 ? .6 : -.6) : 0, filter:ativo ? 'brightness(1.12) drop-shadow(0 10px 14px rgba(96,28,68,.3))' : 'brightness(1) drop-shadow(0 .22vmin .25vmin rgba(110,28,54,.18))', duration:ativo ? .42 : .28, ease:ativo ? 'elastic.out(1, .55)' : 'power3.out', overwrite:'auto' });
   };
   b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); animarHover(true); });
   b.addEventListener('mouseleave', () => animarHover(false));
