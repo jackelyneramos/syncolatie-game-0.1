@@ -1,6 +1,6 @@
 // ===== Mapa de corrida rítmica (arte e música originais, feitas em código) =====
 const Corrida = (() => {
-  const cv = document.getElementById('cv-jogo'), g = cv.getContext('2d');
+  const cv = document.getElementById('cv-jogo'), g = cv.getContext('2d'), videoJogo = document.getElementById('video-jogo');
   const CW = 1672, CH = 941, FLOOR = 650, HITX = 420, PX = 270, VEL = 780;
   const BPM = 128, SPB = 60 / BPM; let JAN = 0.14, PERF = 0.07, dificuldadeJogo = 'normal', musicaJogo = 0;
   const PADROES = [ [[0,0],[2,0]], [[0,0],[1,0],[2,0],[3,0]], [[0,0],[1,1],[2,0],[3,1]],
@@ -10,7 +10,8 @@ const Corrida = (() => {
   const FIM = (4 + SEQ.length * 4) * SPB + 1.5;
 
   let ac, T0, rodando = false, pausado = false, fimTela = null, auto = false, raf = 0, timer = 0, proxStep = 0, pontuacaoRegistrada = false;
-  let notas, efeitos, popups, placar, bgPronto, mapaCarregado = false, poses = null, posesId = '', hurtT = -9, ataque = { t: -9, lane: 0 }, movimentoMapa = { x:0 }, mapaTween = null;
+  let notas, efeitos, popups, placar, bgPronto, plataformaJogo = null, mapaCarregado = false, poses = null, posesId = '', hurtT = -9, ataque = { t: -9, lane: 0 }, movimentoMapa = { x:0 }, mapaTween = null;
+  let spriteScore = null, spriteVida = null, spritePausa = null, spriteCombo = null, spritesIngredientes = [], spritesOverlay = {};
   const PERSONAGENS = {
     jacky: { pasta: 'jacky_sprites_png/quadro_uniforme', prefixo: 'jacky', idle: 1, run: [15, 16, 18, 20], kick: 22, hurt: 8, jump: 16 },
     chocospeed: { pasta: 'ChocoSpeed_sprites_png', prefixo: 'chocospeed', idle: 1, run: [8, 9, 10, 11], kick: 20, hurt: 32, jump: 15 },
@@ -119,17 +120,54 @@ const Corrida = (() => {
     gr = x.createLinearGradient(0, FLOOR + 50, 0, CH); gr.addColorStop(0, 'rgba(255,60,190,0)'); gr.addColorStop(1, 'rgba(255,60,190,.85)'); x.fillStyle = gr; x.fillRect(0, FLOOR + 50, CW, CH);
     return c;
   }
-  function carregarFundo() {
+  function removerQuadriculado(im) {
+    const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const x = c.getContext('2d', { willReadFrequently:true }); x.drawImage(im, 0, 0);
+    const pixels = x.getImageData(0, 0, c.width, c.height), d = pixels.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const maior = Math.max(d[i], d[i + 1], d[i + 2]), menor = Math.min(d[i], d[i + 1], d[i + 2]);
+      if (maior - menor < 14 && menor > 180) d[i + 3] = 0;
+    }
+    x.putImageData(pixels, 0, 0); return c;
+  }
+  function carregarImagem(url) {
     return new Promise(resolve => {
       const im = new Image();
-      im.onload = () => {
-        const c = document.createElement('canvas'); c.width = CW; c.height = CH;
-        c.getContext('2d').drawImage(im, 0, 0, CW, CH);
-        mapaCarregado = true; resolve(c);
-      };
-      im.onerror = () => { mapaCarregado = false; resolve(criarFundoOriginal()); };
-      im.src = 'img/mapa-jogo.png?v=20261123c';
+      im.onload = () => resolve(removerQuadriculado(im));
+      im.onerror = () => resolve(null);
+      im.src = url;
     });
+  }
+  function carregarSprite(url) {
+    return new Promise(resolve => {
+      const im = new Image(); im.onload = () => resolve(im); im.onerror = () => resolve(null); im.src = url;
+    });
+  }
+  const ARQUIVOS_INGREDIENTES = [
+    '01_saco_de_farinha.png', '02_pote_de_acucar.png', '03_manteiga.png', '04_leite.png', '05_ovo.png',
+    '06_pote_chapeu_de_chef.png', '07_lata_de_cacau.png', '08_barra_de_chocolate.png', '09_chantilly.png',
+    '10_morango.png', '11_cereja.png', '12_mirtilo.png', '13_saco_de_confeiteiro.png', '14_tigela_de_massa.png', '15_copo_medidor.png'
+  ];
+  const ARQUIVOS_OVERLAY = [
+    'titulo_pausado.png', 'botao_continuar.png', 'botao_menu.png', 'titulo_fim_de_jogo.png', 'painel_resultado.png',
+    'perfeito.png', 'great.png', 'miss.png', 'selo_S.png', 'selo_A.png', 'selo_B.png', 'selo_C.png'
+  ];
+  async function carregarFundo() {
+    const [arcos, plataforma, score, vida, pausa, combo, ingredientes, overlay] = await Promise.all([
+      carregarSprite('img/Arcos%20de%20Doces%20com%20Janelas%20Transparentes.png.png'),
+      carregarImagem('img/Ponte%20de%20Bolo%20Rosa%20com%20Cora%C3%A7%C3%B5es.png'),
+      carregarSprite('img/01_painel_score.png'), carregarSprite('img/Barra%20de%20Vida%20Doce%20com%20Cora%C3%A7%C3%B5es.png'), carregarSprite('img/03_botao_pause.png'),
+      carregarSprite('img/Efeito%20Combo%20Candy%20Pastel.png'),
+      Promise.all(ARQUIVOS_INGREDIENTES.map(nome => carregarSprite('img/' + encodeURIComponent(nome)))),
+      Promise.all(ARQUIVOS_OVERLAY.map(nome => carregarSprite('img/' + encodeURIComponent(nome))))
+    ]);
+    spriteScore = score; spriteVida = vida; spritePausa = pausa; spriteCombo = combo;
+    spritesIngredientes = ingredientes.filter(Boolean);
+    spritesOverlay = Object.fromEntries(ARQUIVOS_OVERLAY.map((nome, i) => [nome, overlay[i]]));
+    plataformaJogo = plataforma;
+    if (!arcos) { mapaCarregado = false; return criarFundoOriginal(); }
+    mapaCarregado = true;
+    return arcos;
   }
 
   // ---------- Desenho ----------
@@ -170,17 +208,12 @@ const Corrida = (() => {
     g.restore();
   }
   function inimigo(n, t) {
-    const x = HITX + (n.t - t) * VEL, bob = Math.sin(t * 6 + n.t * 3) * 6;
-    const y = n.lane ? 400 + bob : FLOOR - 42 + bob * .4;
-    if (x < -80 || x > CW + 80) return;
-    g.save(); g.translate(x, y);
-    if (n.lane) { g.fillStyle = '#b48bf0'; g.beginPath(); g.ellipse(-48, -6, 26, 14, -.5, 0, 7); g.ellipse(48, -6, 26, 14, .5, 0, 7); g.fill(); }
-    g.fillStyle = n.lane ? '#7b4fd8' : '#e0489f'; g.strokeStyle = '#1a0b36'; g.lineWidth = 6;
-    g.beginPath(); g.arc(0, 0, 42, 0, 7); g.fill(); g.stroke();
-    g.fillStyle = '#fff'; g.beginPath(); g.ellipse(-15, -5, 10, 14, 0, 0, 7); g.ellipse(15, -5, 10, 14, 0, 0, 7); g.fill();
-    g.fillStyle = '#1a0b36'; g.beginPath(); g.arc(-13, -2, 5, 0, 7); g.arc(17, -2, 5, 0, 7); g.fill();
-    g.strokeStyle = '#1a0b36'; g.lineWidth = 5; g.beginPath(); g.moveTo(-14, -26); g.lineTo(-30, -36); g.moveTo(14, -26); g.lineTo(30, -36); g.stroke();
-    g.restore();
+    const x = HITX + (n.t - t) * VEL, bob = Math.sin(t * 6 + n.t * 3) * 5;
+    const y = n.lane ? 400 + bob : FLOOR + 40 - 58 + bob * .4;
+    if (x < -90 || x > CW + 90 || !spritesIngredientes.length) return;
+    const im = spritesIngredientes[Math.abs(Math.floor(n.t * 3 + n.lane)) % spritesIngredientes.length];
+    const w = 116, h = 116;
+    g.drawImage(im, x - w / 2, y - h / 2, w, h);
   }
   function jogador(t) {
     const dA = t - ataque.t, dH = t - hurtT, ativo = rodando && !pausado && !fimTela;
@@ -207,42 +240,74 @@ const Corrida = (() => {
     }
   }
   function hud(t) {
-    texto(String(placar.score).padStart(5, '0'), 50, 82, 70, '#fff', '#5a2fb0'); texto('SCORE', 50, 140, 42, '#b9a2ff', '#3a1a80');
-    if (placar.combo >= 2) {
-      g.save(); g.translate(830, 120); const s = 1 + Math.max(0, .25 - (t - (placar.ultimo || -9))) * 1.2; g.scale(s, s);
-      g.fillStyle = '#ff2fb4'; g.beginPath(); g.ellipse(0, 0, 118, 70, 0, 0, 7); g.fill();
-      texto(String(placar.combo), 0, 18, 84, '#ffe94a', '#7a1052', 'center'); texto('COMBO', 0, 56, 34, '#fff', '#7a1052', 'center'); g.restore();
+    if (spriteScore) {
+      const x = 24, y = 14, w = 360, h = w * spriteScore.naturalHeight / spriteScore.naturalWidth;
+      g.drawImage(spriteScore, x, y, w, h);
+      texto(String(placar.score).padStart(5, '0'), x + w * .72, y + h * .70, 40, '#fff', '#a51e5d', 'center');
     }
-    g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(1530, 34, 14, 52); g.fillRect(1562, 34, 14, 52);   // botão pausa
-    // barra de vida / fever
-    const bx = 560, by = 858, bw = 560, bh = 60;
-    g.fillStyle = '#1b0a35'; g.beginPath(); g.roundRect(bx, by, bw, bh, 16); g.fill(); g.strokeStyle = '#4fc3ff'; g.lineWidth = 6; g.stroke();
-    g.fillStyle = '#ff2fa8'; g.beginPath(); g.roundRect(bx + 8, by + 18, (bw - 16) * Math.max(0, placar.hp) / 250, bh - 26, 10); g.fill();
-    g.fillStyle = '#fff'; g.beginPath(); g.moveTo(bx + 40, by + 20); g.bezierCurveTo(bx + 10, by - 4, bx + 14, by + 36, bx + 40, by + 44); g.bezierCurveTo(bx + 66, by + 36, bx + 70, by - 4, bx + 40, by + 20); g.fill();
-    texto(placar.hp + '/250', bx + bw / 2, by + 48, 32, '#fff', '#7a1052', 'center');
-    texto('FEVER', bx + bw + 40, by + 44, 36, placar.fever >= 100 ? '#ffe94a' : '#6fd3ff', '#1a3a7a');
-    g.fillStyle = '#6fd3ff'; g.fillRect(bx + 8, by + 8, (bw - 16) * Math.min(100, placar.fever) / 100, 8);
+    if (spriteVida) {
+      const w = 410, h = w * spriteVida.naturalHeight / spriteVida.naturalWidth, x = CW - w - 130, y = 18;
+      const vida = Math.max(0, Math.min(250, placar.hp)) / 250;
+      const bx = x + w * .36, by = y + h * .45, trilho = w * .56, bh = h * .19;
+      g.save(); g.beginPath(); g.roundRect(bx, by, trilho, bh, bh / 2); g.clip();
+      g.fillStyle = 'rgba(255,226,238,.96)'; g.fillRect(bx, by, trilho, bh);
+      if (vida > 0) {
+        const verde = g.createLinearGradient(0, by, 0, by + bh);
+        verde.addColorStop(0, '#83e867'); verde.addColorStop(.55, '#59d347'); verde.addColorStop(1, '#39b936');
+        g.fillStyle = verde; g.fillRect(bx, by, trilho * vida, bh);
+        g.fillStyle = 'rgba(255,255,255,.38)'; g.fillRect(bx + bh * .3, by + bh * .13, Math.max(0, trilho * vida - bh * .6), bh * .16);
+      }
+      g.restore(); g.drawImage(spriteVida, x, y, w, h);
+    }
+    if (placar.combo >= 2 && spriteCombo) {
+      g.save(); const decorrido = Math.max(0, t - (placar.ultimo || t));
+      const entrada = Math.exp(-decorrido * 9), escala = .97 + .03 * (1 - entrada);
+      const sobe = 9 * entrada + 2 * Math.sin(t * 4);
+      g.translate(CW / 2, 70 + sobe); g.scale(escala, escala);
+      const w = 300, h = 169;
+      g.drawImage(spriteCombo, -w / 2, -h / 2, w, h);
+      texto(String(placar.combo), 0, h * .82, 34, '#fff', '#a51e5d', 'center'); g.restore();
+    }
+    if (spritePausa) g.drawImage(spritePausa, CW - 122, 14, 104, 114);
   }
   function botao(txt, x, y, w, h, cor) { g.fillStyle = cor; g.beginPath(); g.roundRect(x, y, w, h, 20); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 5; g.stroke(); texto(txt, x + w / 2, y + h * .66, 44, '#fff', '#3a1a80', 'center'); }
   function overlay() {
-    g.fillStyle = 'rgba(15,5,35,.78)'; g.fillRect(0, 0, CW, CH);
-    if (pausado) { texto('PAUSADO', CW / 2, 330, 120, '#fff', '#5a2fb0', 'center'); botao('CONTINUAR', 560, 430, 550, 90, '#ff2fa8'); botao('MENU', 560, 550, 550, 90, '#6a4be0'); }
-    else {
-      texto(fimTela.venceu ? 'COMPLETO!' : 'FIM DE JOGO', CW / 2, 185, 100, '#fff', '#5a2fb0', 'center');
-      const p = placar, tot = p.perfect + p.great + p.miss, pc = tot ? Math.round((p.perfect + p.great * .6) / tot * 100) : 0;
-      const rank = !fimTela.venceu ? 'D' : pc > 95 ? 'S' : pc > 85 ? 'A' : pc > 70 ? 'B' : 'C';
-      texto('Pontos ' + p.score, CW / 2, 260, 50, '#ffe94a', '#7a1052', 'center');
-      texto(`Perfect ${p.perfect}   Great ${p.great}   Miss ${p.miss}`, CW / 2, 330, 38, '#fff', '#3a1a80', 'center');
-      texto(`Combo máx. ${p.maxCombo}   Precisão ${pc}%   Nota ${rank}`, CW / 2, 390, 38, '#b9a2ff', '#3a1a80', 'center');
-      botao('JOGAR DE NOVO', 560, 480, 550, 82, '#ff2fa8'); botao('MENU', 560, 590, 550, 82, '#6a4be0');
+    g.fillStyle = 'rgba(24,8,38,.62)'; g.fillRect(0, 0, CW, CH);
+    const img = (nome, x, y, w, h) => { const im = spritesOverlay[nome]; if (im) g.drawImage(im, x, y, w, h); };
+    if (pausado) {
+      img('titulo_pausado.png', 456, 10, 760, 381);
+      img('botao_continuar.png', 551, 425, 570, 154);
+      img('botao_menu.png', 551, 600, 570, 143);
+      if (!spritesOverlay['titulo_pausado.png']) texto('PAUSADO', CW / 2, 330, 100, '#fff', '#a51e5d', 'center');
+      if (!spritesOverlay['botao_continuar.png']) botao('CONTINUAR', 560, 450, 550, 90, '#ff2fa8');
+      if (!spritesOverlay['botao_menu.png']) botao('MENU', 560, 620, 550, 90, '#6a4be0');
+      return;
     }
+    const p = placar, tot = p.perfect + p.great + p.miss;
+    const pc = tot ? Math.round((p.perfect + p.great * .6) / tot * 100) : 0;
+    const rank = !fimTela.venceu ? 'D' : pc > 95 ? 'S' : pc > 85 ? 'A' : pc > 70 ? 'B' : 'C';
+    img('titulo_fim_de_jogo.png', 484, 0, 704, 352);
+    img('painel_resultado.png', 451, 300, 770, 416);
+    if (!spritesOverlay['titulo_fim_de_jogo.png']) texto('FIM DE JOGO', CW / 2, 185, 84, '#fff', '#a51e5d', 'center');
+    if (!spritesOverlay['painel_resultado.png']) { g.fillStyle = 'rgba(255,238,247,.94)'; g.fillRect(451, 300, 770, 416); }
+    texto(p.score.toLocaleString('pt-BR'), 1012, 377, 34, '#a51e5d', '#fff', 'center');
+    texto(String(p.maxCombo), 1012, 455, 34, '#a51e5d', '#fff', 'center');
+    texto(pc + '%', 1012, 535, 34, '#a51e5d', '#fff', 'center');
+    const selo = spritesOverlay['selo_' + rank + '.png'];
+    if (selo) g.drawImage(selo, 964, 562, 96, 82); else texto(rank, 1012, 616, 48, '#a51e5d', '#fff', 'center');
+    img('botao_continuar.png', 330, 760, 455, 123);
+    img('botao_menu.png', 887, 760, 455, 114);
+    if (!spritesOverlay['botao_continuar.png']) botao('JOGAR DE NOVO', 330, 780, 455, 82, '#ff2fa8');
+    if (!spritesOverlay['botao_menu.png']) botao('MENU', 887, 780, 455, 82, '#6a4be0');
   }
   function quadro() {
     raf = requestAnimationFrame(quadro);
     const t = tempo();
     if (!pausado && !fimTela) { logica(t); }
     g.save(); const dh = t - hurtT; if (dh >= 0 && dh < .14 && !pausado) g.translate((Math.random() - .5) * 8, (Math.random() - .5) * 5);
-    const panMapa = window.gsap ? movimentoMapa.x : -35 + Math.sin(t * .3) * 35; g.drawImage(bgPronto, -70 + panMapa, -25, CW + 140, CH + 50); if (!mapaCarregado) piso(t);
+    if (videoJogo && videoJogo.readyState >= 2) g.drawImage(videoJogo, 0, 0, CW, CH); else { g.fillStyle = '#ffe8f4'; g.fillRect(0, 0, CW, CH); }
+    g.drawImage(bgPronto, 0, 0, CW, CH); if (!mapaCarregado) piso(t);
+    if (plataformaJogo) { const chao = FLOOR + 40, pw = CW * 1.08, ph = pw * plataformaJogo.height / plataformaJogo.width, px = (CW - pw) / 2, py = chao - ph * .20; g.drawImage(plataformaJogo, px, py, pw, ph); }
     ambiente(t);
     for (const n of notas) if (!n.feito) inimigo(n, t);
     g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 5; [FLOOR - 42, 400].forEach(y => { g.beginPath(); g.arc(HITX, y, 52, 0, 7); g.stroke(); });
@@ -250,7 +315,7 @@ const Corrida = (() => {
     efeitos = efeitos.filter(e => t - e.t0 < .5);
     for (const e of efeitos) { const a = (t - e.t0) / .5; g.fillStyle = e.cor; g.globalAlpha = 1 - a; g.beginPath(); g.arc(e.x + e.vx * a, e.y + e.vy * a + 200 * a * a, 9 * (1 - a) + 2, 0, 7); g.fill(); g.globalAlpha = 1; }
     popups = popups.filter(p => t - p.t0 < .6);
-    for (const p of popups) { const a = (t - p.t0) / .6; g.globalAlpha = 1 - a; texto(p.txt, HITX - 120, p.y - a * 60, 64, p.cor, '#7a1052', 'center'); g.globalAlpha = 1; }
+    for (const p of popups) { const a = (t - p.t0) / .6, badge = spritesOverlay[p.tipo === 'perfect' ? 'perfeito.png' : p.tipo === 'great' ? 'great.png' : 'miss.png']; g.globalAlpha = 1 - a; if (badge) g.drawImage(badge, HITX - 75, p.y - 48 - a * 55, 150, 96); else texto(p.txt, HITX - 120, p.y - a * 60, 64, p.cor, '#7a1052', 'center'); g.globalAlpha = 1; }
     g.restore();
     if (t - hurtT >= 0 && t - hurtT < .15 && !pausado) { g.fillStyle = `rgba(255,30,60,${.2 * (1 - (t - hurtT) / .15)})`; g.fillRect(0, 0, CW, CH); }
     hud(t);
@@ -263,7 +328,7 @@ const Corrida = (() => {
     n.feito = true; const perf = Math.abs(dt) <= PERF, p = placar;
     p.combo++; p.maxCombo = Math.max(p.maxCombo, p.combo); p.ultimo = t; p.fever = Math.min(100, p.fever + 3);
     p.score += (perf ? 500 : 300) + Math.min(p.combo, 50) * 10; perf ? p.perfect++ : p.great++; p.hp = Math.min(250, p.hp + 2);
-    ataque = { t, lane: n.lane }; popups.push({ t0: t, txt: perf ? 'PERFECT' : 'GREAT', cor: perf ? '#ff7bd5' : '#7be0ff', y: n.lane ? 330 : 520 });
+    ataque = { t, lane: n.lane }; popups.push({ t0: t, tipo: perf ? 'perfect' : 'great', txt: perf ? 'PERFECT' : 'GREAT', cor: perf ? '#ff7bd5' : '#7be0ff', y: n.lane ? 330 : 520 });
     const y = n.lane ? 400 : FLOOR - 42;
     for (let i = 0; i < 14; i++) efeitos.push({ t0: t, x: HITX, y, vx: (Math.random() - .3) * 260, vy: (Math.random() - .8) * 200, cor: ['#ff7bd5', '#7be0ff', '#ffe94a'][i % 3] });
     sfx(n.lane ? 880 : 440, .09, 'square', .1);
@@ -272,7 +337,7 @@ const Corrida = (() => {
     for (const n of notas) {
       if (n.feito) continue;
       if (auto && t >= n.t) { acertar(n, 0, t); continue; }
-      if (t > n.t + JAN) { n.feito = true; placar.combo = 0; placar.miss++; placar.hp -= 20; hurtT = t; placar.fever = Math.max(0, placar.fever - 10); sfx(110, .15, 'sawtooth', .08); }
+      if (t > n.t + JAN) { n.feito = true; placar.combo = 0; placar.miss++; popups.push({ t0:t, tipo:'miss', txt:'MISS', cor:'#72aaff', y:n.lane ? 330 : 520 }); placar.hp -= 20; hurtT = t; placar.fever = Math.max(0, placar.fever - 10); sfx(110, .15, 'sawtooth', .08); }
     }
     if (placar.hp <= 0) fimTela = { venceu: false };
     else if (t > FIM) fimTela = { venceu: true };
@@ -337,12 +402,16 @@ const Corrida = (() => {
   cv.addEventListener('pointerdown', (e) => {
     const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * CW, y = (e.clientY - r.top) / r.height * CH;
     if (pausado || fimTela) {
-      const sel = (y1) => x > 560 && x < 1110 && y > y1 && y < y1 + 90;
-      if (pausado) { if (sel(430)) pausar(); else if (sel(550)) { pausado = false; ac.resume(); irPara('inicial'); } }
-      else { if (sel(480)) reiniciar(); else if (sel(590)) irPara('inicial'); }
+      if (pausado) {
+        if (x > 540 && x < 1132 && y > 415 && y < 585) pausar();
+        else if (x > 540 && x < 1132 && y > 590 && y < 760) { pausado = false; ac.resume(); irPara('inicial'); }
+      } else {
+        if (x > 320 && x < 795 && y > 750 && y < 900) reiniciar();
+        else if (x > 875 && x < 1350 && y > 750 && y < 900) irPara('inicial');
+      }
       return;
     }
-    if (x > 1500 && y < 110) return pausar();
+    if (x > CW - 136 && y < 140) return pausar();
     bater(y < 500 ? 1 : 0);
   });
   return { iniciar, parar, tecla, configurar };

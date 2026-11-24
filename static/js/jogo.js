@@ -80,7 +80,7 @@ function animarEntradaTela(nome) {
   gsap.killTweensOf(document.querySelectorAll('.tela,.config-opcao,.mapa-acoes button,.mapa-titulo,.mapa-voltar,#personagem,#painel'));
   const tela = document.querySelector('.tela.ativa');
   if (!tela) return;
-  const itens = tela.querySelectorAll('.zona,.botao-inicial,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
+  const itens = tela.querySelectorAll('.zona,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
   gsap.killTweensOf(itens);
   if (itens.length) gsap.fromTo(itens, { y:16, scale:.97, opacity:0 }, { y:0, scale:1, opacity:1, duration:.5, stagger:.035, ease:'back.out(1.45)', clearProps:'opacity' });
   if (nome === 'config-dificuldade' || nome === 'config-musica') { const baixo = nome === 'config-musica'; gsap.fromTo(tela, { backgroundSize:'100% 200%', backgroundPosition:baixo ? 'center bottom' : 'center top' }, { backgroundSize:'102% 204%', backgroundPosition:baixo ? 'center bottom' : 'center top', duration:14, repeat:-1, yoyo:true, ease:'sine.inOut' }); } if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
@@ -189,7 +189,7 @@ botoesInicio.forEach((b, i) => {
   const animarHover = ativo => {
     const imagem = document.querySelector(`[data-botao="${['jogar', 'ranking', 'personalizar'][i]}"]`);
     if (!window.gsap || !imagem || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.to(imagem, { scale:ativo ? 1.045 : 1, filter:ativo ? 'brightness(1.08)' : 'brightness(1)', duration:ativo ? .24 : .18, ease:ativo ? 'back.out(2)' : 'power2.out', overwrite:'auto' });
+    gsap.to(imagem, { filter:ativo ? 'brightness(1.08) drop-shadow(0 .22vmin .25vmin rgba(110,28,54,.18))' : 'brightness(1) drop-shadow(0 .22vmin .25vmin rgba(110,28,54,.18))', duration:ativo ? .24 : .18, ease:'power2.out', overwrite:'auto' });
   };
   b.addEventListener('mouseenter', () => { idxInicio = i; marcarInicio(); bip(660); animarHover(true); });
   b.addEventListener('mouseleave', () => animarHover(false));
