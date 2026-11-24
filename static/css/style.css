@@ -150,7 +150,8 @@ body { display: flex; align-items: center; justify-content: center; }
 
 /* ===== Tela do jogo ===== */
 #tela-jogo { background: #1a0d33; }
-#cv-jogo { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+#video-jogo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; pointer-events:none; }
+#cv-jogo { position: absolute; z-index:1; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
 
 .item, .aba, .gen, .tirar, #voltar-ranking, .config-opcao, .config-voltar, .mapa-voltar {
   transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, filter .22s;

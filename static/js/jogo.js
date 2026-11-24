@@ -80,7 +80,7 @@ function animarEntradaTela(nome) {
   gsap.killTweensOf(document.querySelectorAll('.tela,.config-opcao,.mapa-acoes button,.mapa-titulo,.mapa-voltar,#personagem,#painel'));
   const tela = document.querySelector('.tela.ativa');
   if (!tela) return;
-  const itens = tela.querySelectorAll('.zona,.botao-inicial,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
+  const itens = tela.querySelectorAll('.zona,.ranking-painel,#personagem,#painel,.aba,.config-opcao,.mapa-titulo,.mapa-voltar,.mapa-acoes button');
   gsap.killTweensOf(itens);
   if (itens.length) gsap.fromTo(itens, { y:16, scale:.97, opacity:0 }, { y:0, scale:1, opacity:1, duration:.5, stagger:.035, ease:'back.out(1.45)', clearProps:'opacity' });
   if (nome === 'config-dificuldade' || nome === 'config-musica') { const baixo = nome === 'config-musica'; gsap.fromTo(tela, { backgroundSize:'100% 200%', backgroundPosition:baixo ? 'center bottom' : 'center top' }, { backgroundSize:'102% 204%', backgroundPosition:baixo ? 'center bottom' : 'center top', duration:14, repeat:-1, yoyo:true, ease:'sine.inOut' }); } if (nome === 'config-dificuldade') gsap.to(tela.querySelectorAll('[data-dificuldade]'), { y:-9, duration:1.15, stagger:.15, repeat:-1, yoyo:true, ease:'sine.inOut' });
